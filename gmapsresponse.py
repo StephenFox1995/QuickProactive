@@ -14,7 +14,7 @@ class GmapsResponse(object):
       raise Exception("Status was not OK, status=%s" % self.dict["status"])
     
   
-  def matrixInfo(self, find, measure):
+  def matrixInfo(self, find, measure, row=0):
     """
       Extracts the appropriate information from a Google Maps Matrix API response.
 
@@ -23,7 +23,7 @@ class GmapsResponse(object):
       @param measure:(string) See find() method for Travel class for further info.
     """
     if find == self.DURATION or find == self.DISTANCE:
-      return self.dict["rows"][0]["elements"][0][find][measure]
+      return self.dict["rows"][row]["elements"][0][find][measure]
     else:
       raise ValueError("Uknown %s information to find" % find)
     
