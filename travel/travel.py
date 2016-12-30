@@ -25,7 +25,7 @@ class Travel(object):
     self._mostRecentRequestTime = None
 
 
-  def find(self, orig, dest, find=None, mode="walking", measure="text"):
+  def find(self, orig, dest, find=None, mode="walking", measure="value"):
     """
       Method to find some travel information about two different locations.
 
@@ -56,7 +56,7 @@ class Travel(object):
     if shouldFetch:
       # Send request.
       self._response = GmapsResponse(self._gmaps.distance_matrix(orig, dest, mode=mode))
-      # Record the last request
+      # Record the request time
       self._mostRecentRequestTime = datetime.now()
       
     return self._response.matrixInfo(find, measure)
