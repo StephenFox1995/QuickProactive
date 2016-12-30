@@ -7,5 +7,5 @@ if __name__ == "__main__":
   userLocation = coordinate(53.34750503535324, -6.274092528002939)
 
   travel = Travel(KEY)
-  print(travel.duration(businessLocation, userLocation))
-  print(travel.distance(businessLocation, userLocation))
+  print(travel.find(businessLocation, userLocation, find="duration"))
+  print(travel.find(businessLocation, userLocation, find="distance"))

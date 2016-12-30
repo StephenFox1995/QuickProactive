@@ -6,11 +6,12 @@ import json
 class GmapsResponse(object):
   def __init__(self, gmapsResponse):
     self.dict = gmapsResponse
-    if self.dict["status"] != "OK":
+    status = gmapsResponse["status"]
+    if status != "OK":
       raise Exception("Status was not OK, status=%s" % self.dict["status"])
-
-  def duration(self, show):
-    return self.dict["rows"][0]["elements"][0]["duration"][show]
+  
+  def duration(self, measure):
+    return self.dict["rows"][0]["elements"][0]["duration"][measure]
     
-  def distance(self, show):
-    return self.dict["rows"][0]["elements"][0]["distance"][show]
+  def distance(self, measure):
+    return self.dict["rows"][0]["elements"][0]["distance"][measure]
