@@ -12,8 +12,8 @@ class GmapsResponse(object):
     status = gmapsResponse["status"]
     if status != "OK":
       raise Exception("Status was not OK, status=%s" % self.dict["status"])
-    
-  
+
+
   def matrixInfo(self, find, measure, row=0):
     """
       Extracts the appropriate information from a Google Maps Matrix API response.
@@ -27,4 +27,3 @@ class GmapsResponse(object):
       return self.dict["rows"][row]["elements"][0][find][measure]
     else:
       raise ValueError("Uknown %s information to find" % find)
-    

@@ -13,7 +13,7 @@ class Travel(object):
 
       @param gmapsKey:(string) The Google Maps API key.
 
-      @param rateLimit:(int) The time to wait until a new request is sent 
+      @param rateLimit:(int) The time to wait until a new request is sent
       if the same origin and destination are used. If different locations are
       used than the previous invocation of #find() then rate limit will not take effect.
     """
@@ -32,13 +32,13 @@ class Travel(object):
       @param orig See googlemaps.distance_matrix for correct type.
 
       @param dest See googlemaps.distance_matrix for correct type.
-      
+
       @param find:(string) Specify what to find in relation to the two
         locations, currently supported is 'distance', 'duration'
 
       @param mode:(string) The mode of travel.
 
-      @param measure:(string) Whether to return a text based measure or a correct 
+      @param measure:(string) Whether to return a text based measure or a correct
         measure according to the value. E.g text=4.32km, value=4.25
     """
     shouldFetch = False
@@ -47,26 +47,16 @@ class Travel(object):
       shouldFetch = True
     self._lastOrig = orig
     self._lastDest = dest
-    
+
     if self._mostRecentRequestTime != None:
       # Check if a new request should be sent, based on the rateLimit value.
       if (datetime.now() - self._mostRecentRequestTime).total_seconds() >= self._rateLimit:
         shouldFetch = True
-    
+
     if shouldFetch:
       # Send request.
       self._response = GmapsResponse(self._gmaps.distance_matrix(orig, dest, mode=mode))
       # Record the request time
       self._mostRecentRequestTime = datetime.now()
-      
+
     return self._response.matrixInfo(find, measure)
-      
-  
-
-
-
-
-
-
-
-
