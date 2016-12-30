@@ -12,6 +12,7 @@ class Travel(object):
       from one place to another using the Google Maps API.
 
       @param gmapsKey:(string) The Google Maps API key.
+
       @param rateLimit:(int) The time to wait until a new request is sent 
       if the same origin and destination are used. If different locations are
       used than the previous invocation of #find() then rate limit will not take effect.
@@ -22,6 +23,7 @@ class Travel(object):
     self._lastOrig = None
     self._lastDest = None
     self._mostRecentRequestTime = None
+
 
   def find(self, orig, dest, find=None, mode="walking", measure="text"):
     """
@@ -57,13 +59,8 @@ class Travel(object):
       # Record the last request
       self._mostRecentRequestTime = datetime.now()
       
-    
-    if find == "duration":
-      return self._response.duration(measure)
-    elif find == "distance":
-      return self._response.distance(measure)
-    else:
-      raise ValueError("Nothing to find.")
+    return self._response.matrixInfo(find, measure)
+      
   
 
 
