@@ -4,9 +4,9 @@ import argparse
 import subprocess
 
 class Config(object):
-    
-  _CONFIG_FILE_PATH = "/etc/testconfig/test"
-  _CONFIG_DIR = "/etc/testconfig/"
+  _CONFIG_FILENAME = "config.json"
+  _CONFIG_FILE_PATH = "/etc/quick/%s" % _CONFIG_FILENAME
+  _CONFIG_DIR = "/etc/quick/"
   _MONGO_OBJECT_NAME = "mongodb"
   _MONGO_DATABASES = "databases"
   _GMAPS = "gmaps"
@@ -27,6 +27,7 @@ class Config(object):
      Creates the configuration file where settings and configurations
      are stored.
     """
+    Config.checkRoot()
     if not os.path.exists(self._CONFIG_DIR):
       os.mkdir(self._CONFIG_DIR)
 
@@ -35,10 +36,12 @@ class Config(object):
     if os.path.exists(self._CONFIG_FILE_PATH):
       print("%s already exists. Overwrite? y/n" % self._CONFIG_FILE_PATH)
       response = raw_input()
-      if response == "y":
-        print("Overwriting... %s" % self._CONFIG_FILE_PATH)
-        with open(self._CONFIG_FILE_PATH, "w+") as fp:
-          json.dump(self._FILE_TEMPLATE, fp, indent=2)
+      if response != "y":
+        return
+      print("Overwriting... %s" % self._CONFIG_FILE_PATH)
+    with open(self._CONFIG_FILE_PATH, "w+") as fp:
+      json.dump(self._FILE_TEMPLATE, fp, indent=2)
+      print("Configuration file successfully created.")
 
 
   def addMongoDatabase(self, uri, port, database):
@@ -105,7 +108,7 @@ class Config(object):
 def args():
   parser = argparse.ArgumentParser("Confiration file util")
   parser.add_argument(
-    "--m", "--make",
+    "-mk", "--make",
       help="Make the configuration file at /etc/quick/config.",
       dest="makeconfig",
       type=bool,
