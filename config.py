@@ -10,6 +10,7 @@ class Config(object):
   _MONGO_OBJECT_NAME = "mongodb"
   _MONGO_DATABASES = "databases"
   _GMAPS = "gmaps"
+  _TOKEN = "token"
   _FILE_TEMPLATE = {"databases": [] }
   
   @staticmethod
@@ -65,7 +66,20 @@ class Config(object):
     newKey = { "key": key }
     fileContents[self._GMAPS] = newKey
     self.__writeConfigFile(fileContents)
-      
+
+  
+  def addTokenSecretKey(self, secret):
+    """
+      Adds the token secret to the configuration file.
+
+      @param secret:(string) The token secret key.
+    """
+    fileContents = self.__readConfigFile()
+    newTokeSecret = {"secret": secret}
+    fileContents[self._TOKEN] = newTokeSecret
+    self.__writeConfigFile(fileContents)
+
+
     
   def __readConfigFile(self):
     """
@@ -128,21 +142,22 @@ def args():
       dest="gmapskey",
       type=str
   )
+  parser.add_argument(
+    "-t", "--token",
+      help="Add token secrey to configuration file",
+      dest="tokenSecret",
+      type=str
+  )
   return parser
 
-
-
-if __name__ == "__main__":
-  parser = args()
-  args = parser.parse_args()
+def handleArgs(parsedArgs):
+  args = parsedArgs
   config = Config()
 
   if args.makeconfig == True:
-    Config.checkRoot()
     config.makeConfigFile()
 
   if args.mongo != None:
-    Config.checkRoot()
     if args.port != None and \
       args.uri != None and \
       args.db != None:
@@ -155,9 +170,11 @@ if __name__ == "__main__":
       exit(1)
 
   if args.gmapskey != None:
-    Config.checkRoot()
     config.addGoogleMapsKey(args.gmapskey)
         
-    
-  
-  
+  if args.tokenSecret != None:
+    config.addTokenSecretKey(args.tokenSecret)
+
+
+if __name__ == "__main__":
+  handleArgs(args().parse_args())
