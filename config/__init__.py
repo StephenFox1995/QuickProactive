@@ -1,2 +1,2 @@
-import config
+import run
 from config import Config

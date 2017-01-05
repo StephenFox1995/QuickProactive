@@ -135,6 +135,24 @@ class Config(object):
     del fileContents[self._TOKEN]
     self.__writeConfigFile(fileContents)
     
+  def read(self, prop):
+    """
+      Reads a property or properties from the config file.
+      If the property exists it will be returned, otherwise if 
+      the property doesn't exist then the method will silently fail
+      and None will be returned.
+
+      @param prop:(list) The property or properties to retrieve.
+      @return list of the properties.
+    """
+    fileContents = self.__readConfigFile()
+    if type(prop) is list:
+      data = []
+      for p in prop:
+        if p in fileContents:
+          data.append(fileContents[p])
+      return data
+    raise ValueError("Expected type 'list' got %s" % type(prop))
 
   def __readConfigFile(self):
     """
