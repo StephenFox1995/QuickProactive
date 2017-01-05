@@ -27,6 +27,7 @@ class Config(object):
     if os.getuid() != 0:
       raise Exception("Must be executed with root privileges.")
 
+
   def makeConfigFile(self):
     """
      Creates the configuration file where settings and configurations
@@ -64,7 +65,7 @@ class Config(object):
     fileContents[self._MONGO_DATABASES].append(newDatabase)
     self.__writeConfigFile(fileContents)
   
-  def removeMongoDatabase(self, uri, port, database):
+  def deleteMongoDatabase(self, uri, port, database):
     """
       Removes details for a database, from the databases list in the
       configuration file.
@@ -103,11 +104,18 @@ class Config(object):
       @param key:(str) The Google Maps API key to add to the configuration file.
     """
     fileContents = self.__readConfigFile()
-    newKey = { "key": key }
-    fileContents[self._GMAPS] = newKey
+    fileContents[self._GMAPS] = key
     self.__writeConfigFile(fileContents)
 
-  
+  def deleteGoogleMapsKey(self):
+    """
+      Deletes the Google Maps API key in the configuration file
+    """
+    fileContents = self.__readConfigFile()
+    del fileContents[self._GMAPS]
+    self.__writeConfigFile(fileContents)
+
+
   def addTokenSecretKey(self, secret):
     """
       Adds the token secret to the configuration file.
@@ -178,9 +186,15 @@ def args():
   )
   parser.add_argument(
     "-g", "--gmapskey",
-      help="Adds a Google Maps API Key",
+      help="Add or delete a Google Maps API Key",
       dest="gmapskey",
-      type=str
+      type=str,
+      choices=["add", "delete"]
+  )
+  parser.add_argument(
+    "-k", "--key",
+    help="A key",
+    dest="key"
   )
   parser.add_argument(
     "-t", "--token",
@@ -193,6 +207,8 @@ def args():
 def handleArgs(parsedArgs):
   args = parsedArgs
   config = Config()
+  ADD_ARG = "add"
+  DELETE_ARG = "delete"
 
   if args.makeconfig == True:
     config.makeConfigFile()
@@ -201,18 +217,21 @@ def handleArgs(parsedArgs):
     if args.port != None and \
         args.uri != None and \
         args.db  != None:
-      if args.mongo == "add":
+      if args.mongo == ADD_ARG:
         config.addMongoDatabase(args.uri, args.port, args.db)
         print("Successfully Added!")
-      elif args.mongo == "delete":
-        config.removeMongoDatabase(args.uri, args.port, args.db)
+      elif args.mongo == DELETE_ARG:
+        config.deleteMongoDatabase(args.uri, args.port, args.db)
         print("Successfully Removed!")
     else:
       parse.error("--mongo usage: [-uri] [-p] [-db]")
       exit(1)
 
   if args.gmapskey != None:
-    config.addGoogleMapsKey(args.gmapskey)
+    if args.gmapskey == ADD_ARG and args.key != None:
+      config.addGoogleMapsKey(args.key)
+    elif args.gmapskey == DELETE_ARG:
+      config.deleteGoogleMapsKey()
         
   if args.tokenSecret != None:
     config.addTokenSecretKey(args.tokenSecret)
