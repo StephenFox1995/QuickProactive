@@ -1,6 +1,5 @@
 import os
 import json
-import argparse
 import subprocess
 
 
@@ -123,12 +122,20 @@ class Config(object):
       @param secret:(str) The token secret key.
     """
     fileContents = self.__readConfigFile()
-    newTokeSecret = {"secret": secret}
-    fileContents[self._TOKEN] = newTokeSecret
+    newTokenSecret = {"secret": secret}
+    fileContents[self._TOKEN] = newTokenSecret
     self.__writeConfigFile(fileContents)
 
 
+  def deleteTokenSecretKey(self):
+    """
+      Deletes the token secret from the configuration file.
+    """
+    fileContents = self.__readConfigFile()
+    del fileContents[self._TOKEN]
+    self.__writeConfigFile(fileContents)
     
+
   def __readConfigFile(self):
     """
       Read from the configuration file defined by __CONFIG_FILE_PATH.
@@ -146,96 +153,3 @@ class Config(object):
     with open(self._CONFIG_FILE_PATH, "w+") as fp:
       contents = json.dumps(contents, indent=2, sort_keys=True)
       fp.write(contents)
-
-      
-    
-
-def args():
-  parser = argparse.ArgumentParser("Confiration file util")
-  parser.add_argument(
-    "-mk", "--make",
-      help="Make the configuration file at /etc/quick/config.",
-      dest="makeconfig",
-      type=bool,
-      default=False
-  )
-  parser.add_argument(
-    "-m", "--mongo",
-      help="Add or delete a MongoDB from config file, format: [-uri] [-p] [-db]",
-      dest="mongo",
-      choices=["add", "delete"]
-  )
-  parser.add_argument(
-    "-u", "--uri",
-      help="URI for new Mongo database",
-      dest="uri",
-      type=str
-  )
-  parser.add_argument(
-    "-p", "--port",
-      help="Port for new Mongo database",
-      dest="port",
-      type=int
-      
-  )  
-  parser.add_argument(
-    "-d", "--db",
-      help="The Mongo database name",
-      dest="db",
-      type=str
-  )
-  parser.add_argument(
-    "-g", "--gmapskey",
-      help="Add or delete a Google Maps API Key",
-      dest="gmapskey",
-      type=str,
-      choices=["add", "delete"]
-  )
-  parser.add_argument(
-    "-k", "--key",
-    help="A key",
-    dest="key"
-  )
-  parser.add_argument(
-    "-t", "--token",
-      help="Add token secrey to configuration file",
-      dest="tokenSecret",
-      type=str
-  )
-  return parser
-
-def handleArgs(parsedArgs):
-  args = parsedArgs
-  config = Config()
-  ADD_ARG = "add"
-  DELETE_ARG = "delete"
-
-  if args.makeconfig == True:
-    config.makeConfigFile()
-
-  if args.mongo != None:
-    if args.port != None and \
-        args.uri != None and \
-        args.db  != None:
-      if args.mongo == ADD_ARG:
-        config.addMongoDatabase(args.uri, args.port, args.db)
-        print("Successfully Added!")
-      elif args.mongo == DELETE_ARG:
-        config.deleteMongoDatabase(args.uri, args.port, args.db)
-        print("Successfully Removed!")
-    else:
-      parse.error("--mongo usage: [-uri] [-p] [-db]")
-      exit(1)
-
-  if args.gmapskey != None:
-    if args.gmapskey == ADD_ARG and args.key != None:
-      config.addGoogleMapsKey(args.key)
-    elif args.gmapskey == DELETE_ARG:
-      config.deleteGoogleMapsKey()
-        
-  if args.tokenSecret != None:
-    config.addTokenSecretKey(args.tokenSecret)
-
-
-if __name__ == "__main__":
-  handleArgs(args().parse_args())
