@@ -8,7 +8,7 @@ class Config(object):
   """
     Class to edit configuration file.
   """
-  
+
   _CONFIG_FILENAME = "config.json"
   _CONFIG_FILE_PATH = "/etc/quick/%s" % _CONFIG_FILENAME
   _CONFIG_DIR = "/etc/quick/"
@@ -53,22 +53,54 @@ class Config(object):
     """
       Adds basic details for a Mongo database to the configuration file.
 
-      @param uri:(string) The URI to find the database.
+      @param uri:(str) The URI to find the database.
 
       @param port:(int) The port the MongoDB instance is running on.
 
-      @param database:(string) The name of the database to connect to.
+      @param database:(str) The name of the database to connect to.
     """
     fileContents = self.__readConfigFile()
     newDatabase = { "uri": uri, "port": port, "database": database }
     fileContents[self._MONGO_DATABASES].append(newDatabase)
     self.__writeConfigFile(fileContents)
-      
+  
+  def removeMongoDatabase(self, uri, port, database):
+    """
+      Removes details for a database, from the databases list in the
+      configuration file.
+
+      @param uri:(str) The database uri.
+      @param port:(int) The port.
+      @param database:(str) The name of the database.
+    """
+    fileContents = self.__readConfigFile()
+    databases = fileContents[self._MONGO_DATABASES]
+    dbToCheck = { "uri": uri, "port": port, "database": database }
+    for (i, value) in enumerate(databases):
+      if (self.__dbCompare(databases[i], dbToCheck)):
+        del databases[i]
+    print(databases)
+
+    fileContents[self._MONGO_DATABASES] = databases
+    self.__writeConfigFile(fileContents)
+
+  def __dbCompare(self, db1, db2):
+    """
+      Compares the details of two databases, to check if they are the same.
+    """
+    if db1["uri"] == db2["uri"] and \
+        db1["port"] == db2["port"] and \
+        db1["database"] == db2["database"]:
+      return True
+    else:
+      return False
+
+
   def addGoogleMapsKey(self, key):
     """
       Adds a Google Maps API key to the configuration file.
 
-      @param key:(string) The Google Maps API key to add to the configuration file.
+      @param key:(str) The Google Maps API key to add to the configuration file.
     """
     fileContents = self.__readConfigFile()
     newKey = { "key": key }
@@ -80,7 +112,7 @@ class Config(object):
     """
       Adds the token secret to the configuration file.
 
-      @param secret:(string) The token secret key.
+      @param secret:(str) The token secret key.
     """
     fileContents = self.__readConfigFile()
     newTokeSecret = {"secret": secret}
@@ -121,7 +153,7 @@ def args():
   )
   parser.add_argument(
     "-m", "--mongo",
-      help="Adds a MongoDB details to connect to a database, format: [-uri] [-p] [-db]",
+      help="Add or delete a MongoDB from config file, format: [-uri] [-p] [-db]",
       dest="mongo",
       choices=["add", "delete"]
   )
@@ -167,12 +199,14 @@ def handleArgs(parsedArgs):
 
   if args.mongo != None:
     if args.port != None and \
-      args.uri != None and \
-      args.db != None:
+        args.uri != None and \
+        args.db  != None:
       if args.mongo == "add":
         config.addMongoDatabase(args.uri, args.port, args.db)
+        print("Successfully Added!")
       elif args.mongo == "delete":
-        pass
+        config.removeMongoDatabase(args.uri, args.port, args.db)
+        print("Successfully Removed!")
     else:
       parse.error("--mongo usage: [-uri] [-p] [-db]")
       exit(1)
