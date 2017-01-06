@@ -3,7 +3,6 @@ from coord import coordinate
 from gmapsresponse import GmapsResponse
 from datetime import datetime
 
-
 class Travel(object):
   def __init__(self, gmapsKey, rateLimit=20):
     """
@@ -25,7 +24,7 @@ class Travel(object):
     self._mostRecentRequestTime = None
 
 
-  def find(self, orig, dest, find=None, mode="walking", measure="value"):
+  def find(self, orig, dest, find, mode="walking", measure="value"):
     """
       Method to find some travel information about two different locations.
 
@@ -35,6 +34,7 @@ class Travel(object):
 
       @param find:(string) Specify what to find in relation to the two
         locations, currently supported is 'distance', 'duration'
+        See find.py for options.
 
       @param mode:(string) The mode of travel.
 

@@ -1,12 +1,11 @@
 import json
+import find as Find
+
 """
   Encapusulates a response from the Google Maps API, specifically the Distance Matrix API.
   Exposes common methods which may be useful for extracting information from the response.
 """
 class GmapsResponse(object):
-  _DURATION = "duration"
-  _DISTANCE = "distance"
-
   def __init__(self, gmapsResponse):
     self.dict = gmapsResponse
     status = gmapsResponse["status"]
@@ -18,12 +17,11 @@ class GmapsResponse(object):
     """
       Extracts the appropriate information from a Google Maps Matrix API response.
 
-      @param find:(string) See find() method for Travel class for further info.
+      @param find:(str) See find() method in Travel class for further info.
 
-      @param measure:(string) See find() method for Travel class for further info.
+      @param measure:(str) See find() method in Travel class for further info.
     """
-    if find == _DURATION or \
-       find == _DISTANCE:
+    if find == Find.DURATION or find == Find.DISTANCE:
       return self.dict["rows"][row]["elements"][0][find][measure]
     else:
       raise ValueError("Uknown %s information to find" % find)

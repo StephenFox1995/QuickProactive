@@ -7,6 +7,9 @@ class Config(object):
   """
     Class to edit configuration file.
   """
+  GMAPS_KEY = "gmaps"
+  DATABASES = "databases"
+  TOKEN = "token"
 
   _CONFIG_FILENAME = "config.json"
   _CONFIG_FILE_PATH = "/etc/quick/%s" % _CONFIG_FILENAME
