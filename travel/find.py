@@ -1,2 +1,0 @@
-DURATION = "duration"
-DISTANCE = "distance"
