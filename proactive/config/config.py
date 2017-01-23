@@ -52,7 +52,7 @@ class Config(object):
       print("Configuration file successfully created.")
 
 
-  def addMongoDatabase(self, uri, port, database):
+  def addMongoDatabase(self, uri, port, database, username=None, password=None):
     """
       Adds basic details for a Mongo database to the configuration file.
 
@@ -61,9 +61,18 @@ class Config(object):
       @param port:(int) The port the MongoDB instance is running on.
 
       @param database:(str) The name of the database to connect to.
+
+      @param username:(str) The username.
+
+      @param password:(str) The password.
     """
     fileContents = self.__readConfigFile()
     newDatabase = { "uri": uri, "port": port, "database": database }
+
+    if username != None and password != None:
+      newDatabase["username"] = username
+      newDatabase["password"] = password
+      
     fileContents[self._MONGO_DATABASES].append(newDatabase)
     self.__writeConfigFile(fileContents)
   
@@ -73,7 +82,9 @@ class Config(object):
       configuration file.
 
       @param uri:(str) The database uri.
+
       @param port:(int) The port.
+
       @param database:(str) The name of the database.
     """
     fileContents = self.__readConfigFile()

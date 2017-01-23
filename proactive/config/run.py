@@ -17,13 +17,21 @@ def args():
       choices=["add", "del"]
   )
   parser.add_argument(
-    "-u", "--uri",
+    "--uri",
       help="URI for new Mongo database",
       dest="uri",
-      type=str
+      type=str,
+      nargs="?"
   )
   parser.add_argument(
-    "-p", "--port",
+    "-p", "--password",
+      help="The password for the user.",
+      dest="password",
+      type=str,
+      nargs="?"
+  )
+  parser.add_argument(
+    "--port",
       help="Port for new Mongo database",
       dest="port",
       type=int
@@ -34,6 +42,13 @@ def args():
       help="The Mongo database name",
       dest="db",
       type=str
+  )
+  parser.add_argument(
+    "-u", "--username",
+      help="The username for the database",
+      dest="user",
+      type=str,
+      nargs="?"
   )
   parser.add_argument(
     "-g", "--gmapskey",
@@ -108,8 +123,14 @@ def handleArgs(parser):
     if args.port != None and \
         args.uri != None and \
         args.db != None:
-      config.addMongoDatabase(args.uri, args.port, args.db)
-      print("Successfully Added!")
+        if args.user != None and args.password == None:
+          parser.error("Password not specified.")
+          exit(1)
+        elif args.password != None and args.user == None:
+          parser.error("User not specified.")
+          exit(1)
+        config.addMongoDatabase(args.uri, args.port, args.db, args.user, args.password)
+        print("Successfully Added!")
     else:
       parser.error("--mongo usage: [-uri] [-p] [-db]")
       exit(1)
