@@ -10,3 +10,7 @@ class Prioritized:
   @abstractmethod
   def __lt__(self, other):
     pass
+
+  @abstractmethod
+  def serialize(self):
+    pass

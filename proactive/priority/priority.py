@@ -1,5 +1,6 @@
 import heapq as heap
 from prioritized import Prioritized
+import json
 
 class Priority(object):
   def __init__(self, items=None, threshold=None):
@@ -20,9 +21,9 @@ class Priority(object):
   def printQueue(self):
     for i in self._queue:
       print(i.processing)
-
-
-    
-
-    
-    
+  
+  def serialize(self):
+    serialized = []
+    for i in self._queue:
+      serialized.append(i.serialize())
+    return json.dumps(serialized)

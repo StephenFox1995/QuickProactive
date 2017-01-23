@@ -1,8 +1,10 @@
 from prioritized import Prioritized
+import json
 
 class Order(Prioritized):
    #Constructor (should only be invoked with keyword parameters)
-  def __init__(self, release, deadline, profit, processing=None):
+  def __init__(self, id, release, deadline, profit, processing=None):
+    self.id = id
     self.release = release
     self.deadline = deadline
     self.profit = profit
@@ -17,6 +19,16 @@ class Order(Prioritized):
   
   def __lt__(self, other):
     return self.priority() < other.priority()
+  
+  def serialize(self):
+    serialized = {
+      "id": self.id,
+      "processing": self.processing,
+      "deadline": self.deadline,
+      "profit": self.profit, 
+      "release": self.release
+    }
+    return json.dumps(serialized, indent=2)
 
 # j = (r,d,p,w) 
 # r - release time

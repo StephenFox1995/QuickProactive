@@ -12,10 +12,8 @@ class PriorityWorker(object):
     self._begin()
 
   def _updateFileWithPriorities(self):
-    pass
-    # print("Hello World")
-    
-
+    serializedQueue = self._queue.serialize()
+    print(serializedQueue)
 
   def _begin(self):
     job = self._scheduler.add_job(self._updateFileWithPriorities, trigger=self._refresh)
