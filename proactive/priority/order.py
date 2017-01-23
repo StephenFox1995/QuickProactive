@@ -1,6 +1,22 @@
 from prioritized import Prioritized
 import json
 
+
+"""
+j = (r,d,p,w) 
+r - release time
+d - deadline
+p - processing time
+w - weight profit.
+
+j = (r,d,p,w)
+r - release time
+d - deadline
+p - processing time
+w - weight profit
+
+Assume: p = d - r
+"""
 class Order(Prioritized):
    #Constructor (should only be invoked with keyword parameters)
   def __init__(self, id, release, deadline, profit, processing=None):
@@ -20,29 +36,14 @@ class Order(Prioritized):
   def __lt__(self, other):
     return self.priority() < other.priority()
   
-  def serialize(self):
-    serialized = {
+  def asDict(self):
+    return {
       "id": self.id,
-      "processing": self.processing,
+      "release": self.release,
       "deadline": self.deadline,
-      "profit": self.profit, 
-      "release": self.release
+      "profit": self.profit,
+      "processing": self.processing
     }
-    return json.dumps(serialized, indent=2)
 
-# j = (r,d,p,w) 
-# r - release time
-# d - deadline
-# p - processing time
-# w - weight profit.
 
-"""
-j = (r,d,p,w)
-r - release time
-d - deadline
-p - processing time
-w - weight profit
-
-Assume: p = d - r
-"""
 

@@ -22,8 +22,8 @@ class Priority(object):
     for i in self._queue:
       print(i.processing)
   
-  def serialize(self):
-    serialized = []
+  def asDict(self):
+    _dict = {"queue": []}
     for i in self._queue:
-      serialized.append(i.serialize())
-    return json.dumps(serialized)
+      _dict["queue"].append(i.asDict())
+    return _dict

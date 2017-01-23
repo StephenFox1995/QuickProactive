@@ -5,7 +5,7 @@ from proactive import Config
 from proactive import Order
 from proactive import Priority
 from proactive import PriorityWorker
-from proactive import Database
+from proactive import PriorityDB
 
 if __name__ == "__main__":
   config = Config()
@@ -30,8 +30,8 @@ if __name__ == "__main__":
   orders = [orderOne, orderTwo, orderThree]
   priority = Priority(orders)
   
-  # worker = PriorityWorker("s", "1234", priority)
-  db = Database(mongo["uri"], mongo["port"], mongo["database"], mongo["username"], mongo["password"])
+  db = PriorityDB(mongo["uri"], mongo["port"], mongo["database"], mongo["username"], mongo["password"])
   db.connect()
+  worker = PriorityWorker(db, "test1234", priority)
   
   

@@ -1,22 +1,38 @@
 from apscheduler.schedulers.blocking import BlockingScheduler
 from apscheduler.triggers.interval import IntervalTrigger
 from datetime import timedelta
+from db import Database
 
 class PriorityWorker(object):
-  def __init__(self, fd, businessID, queue, refresh=5000):
-    self.__fd = fd
+  def __init__(self, dbConnection, businessID, queue, refresh=5000):
+    """
+      @param dbConnection:(priority.PriorityDB) Connection to the database where 
+        the priority queue will be written to periodically.
+
+      @param businessID:(str) The id of the business.
+
+      @param queue:(priority.Priority) PriorityQueue class.
+
+      @param refresh:(int) - milliseconds: How often the database should be read to when checking
+        for new orders. How often the database should be written to with the current state of the
+        priority queue.
+    """
+    self._dbConnection = dbConnection
     self._businessID = businessID
     self._queue = queue
     self._refresh = IntervalTrigger(seconds=(refresh / 1000))
     self._scheduler = BlockingScheduler()
     self._begin()
 
-  def _updateFileWithPriorities(self):
-    serializedQueue = self._queue.serialize()
-    print(serializedQueue)
+  def _updateDatabaseWithPriorities(self):
+    queueAsDict = self._queue.asDict()
+    queueAsDict["businessID"] = self._businessID
+    self._dbConnection.write(queueAsDict)
+    
+    
 
   def _begin(self):
-    job = self._scheduler.add_job(self._updateFileWithPriorities, trigger=self._refresh)
+    job = self._scheduler.add_job(self._updateDatabaseWithPriorities, trigger=self._refresh)
     self._scheduler.start()
     
 

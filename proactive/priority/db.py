@@ -14,7 +14,6 @@ class Database(object):
     """
     Connects to the database from the arguments specified in the constructor.
     """
-    print(self.__connectionString)
     self.client = MongoClient(self.__connectionString)
     self.database = self.client.get_database(self._dbName)
     del self.__user

@@ -12,5 +12,5 @@ class Prioritized:
     pass
 
   @abstractmethod
-  def serialize(self):
+  def asDict(self):
     pass
