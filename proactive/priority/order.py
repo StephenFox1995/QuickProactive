@@ -3,10 +3,9 @@ from datetime import datetime, timedelta
 
 class Order(Prioritized):
    #Constructor (should only be invoked with keyword parameters)
-  def __init__(self, id, deadline, profit, processing, release=None):
+  def __init__(self, id, deadline, profit, processing):
     """
       @param id:(str) The id of the order.
-      @param release:(int) The number of seconds when this order needs to be released.
       @param deadline:(int) The number of seconds for the deadline of this order.
       @param profit:(double) The profit from this order.
       @param processing:(int) The time in seconds it would take to process this order.
@@ -26,12 +25,29 @@ class Order(Prioritized):
       Assume: p = d - r
     """
     self.id = id
-    self.deadline = deadline
     self.profit = profit
+    self.setTimeAttrs(deadline, processing) # Set time attrs so deadline, release etc are calculated correctly.
+  
+
+  def setTimeAttrs(self, deadline, processing):
+    self.deadline = deadline
+    self.deadlineISO = self._isoTime(self.deadline)
     self.processing = processing
+
+    # Re-calculate the time left to process.
     self.timeLeftToProcess = self._timeLeftToProcess(self.deadline, self.processing)
-    if release == None:
-      self.release = self._releaseAt(self.timeLeftToProcess, self.deadline, self.processing)
+
+    # Re-calculate the time until release.
+    self.release = self._releaseAt(self.timeLeftToProcess, self.deadline, self.processing)
+    self.releaseISO = self.release.isoformat()
+  
+  def _isoTime(self, seconds):
+    """
+      Calculates the time (ISO format) with n seconds added.
+    """
+    return (datetime.now() + timedelta(seconds=seconds)).isoformat()
+    
+
 
 
   def _timeLeftToProcess(self, deadline, processing):
@@ -67,9 +83,8 @@ class Order(Prioritized):
       return datetime.now()
     
     deadlineTimeFormat = datetime.now() + timedelta(seconds=deadline)
-    return deadlineTimeFormat - (timedelta(seconds=processing) - timedelta(seconds=buff))
+    return deadlineTimeFormat - (timedelta(seconds=buff) - timedelta(seconds=processing))
     
-
 
   def priority(self):
     return 10
@@ -80,7 +95,8 @@ class Order(Prioritized):
   def asDict(self):
     return {
       "id": self.id,
-      "release": self.release.isoformat(),
+      "releaseISO": self.releaseISO,
+      "deadlineISO": self.deadlineISO,
       "deadline": self.deadline,
       "profit": self.profit,
       "processing": self.processing,
