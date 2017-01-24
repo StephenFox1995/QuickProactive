@@ -32,7 +32,8 @@ class Order(Prioritized):
 
   def setTimeAttrs(self, deadline, processing):
     self.deadline = deadline
-    self.deadlineISO = self._isoTime(self.deadline)
+    self.deadlineISO = self._addSeconds(datetime.now(), self.deadline).isoformat()
+
     self.processing = processing
 
     # Re-calculate the time left to process.
@@ -42,11 +43,12 @@ class Order(Prioritized):
     self.release = self._releaseAt(self.timeLeftToProcess, self.deadline, self.processing)
     self.releaseISO = self.release.isoformat()
   
-  def _isoTime(self, seconds):
+
+  def _addSeconds(self, time, seconds):
     """
-      Calculates the time (ISO format) with n seconds added.
+      Adds n seconds to the time arg.
     """
-    return (datetime.now() + timedelta(seconds=seconds)).isoformat()
+    return time + timedelta(seconds=seconds)
 
 
   def _timeLeftToProcess(self, deadline, processing):
