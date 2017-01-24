@@ -85,7 +85,7 @@ class Order(Prioritized):
       return datetime.now()
     
     deadlineTimeFormat = datetime.now() + timedelta(seconds=deadline)
-    return deadlineTimeFormat - (timedelta(seconds=processing) - timedelta(seconds=buff))
+    return (deadlineTimeFormat - timedelta(seconds=processing)) - timedelta(seconds=buff)
     
 
   def priority(self):

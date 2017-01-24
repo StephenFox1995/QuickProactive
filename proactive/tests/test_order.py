@@ -64,13 +64,39 @@ class OrderTest(unittest2.TestCase):
     expectedReleaseAtTime = (datetime.now() + timedelta(seconds=deadline) - timedelta(seconds=processing)).isoformat()
     releaseAtTime = order._releaseAt(order.timeLeftToProcess, deadline, processing).isoformat()
 
-    # Remove the seconds, theyre not important.
+    # Compare them as string, with no seconds.
     expectedReleaseAtTime = expectedReleaseAtTime[:-7]
     releaseAtTime = releaseAtTime[:-7]
-
     self.assertEqual(expectedReleaseAtTime, releaseAtTime)
 
     
-    
+  def test_releaseAtWithBuffPeriod(self):
+    deadline = 600 # 10 mins
+    processing = 300 # 5 mins
+    buff = 120 # 2 mins
+
+    order = Order(
+      id=1, 
+      deadline=self.deadline, 
+      profit=self.profit, 
+      processing=self.processing
+    )
+
+    # Expected release time is 5 mins from now.
+    expectedReleaseAtTime = \
+      ( datetime.now() + 
+        timedelta(seconds=deadline) - 
+        timedelta(seconds=processing) - 
+        timedelta(seconds=buff)
+      ).isoformat()
+
+    releaseAtTime = order._releaseAt(order.timeLeftToProcess, deadline, processing, buff=buff).isoformat()
+
+    # Compare them as string, with no seconds.
+    expectedReleaseAtTime = expectedReleaseAtTime[:-7]
+    releaseAtTime = releaseAtTime[:-7]
+    self.assertEqual(expectedReleaseAtTime, releaseAtTime)
+
+
 if __name__ == "__main__":
   unittest2.main()
