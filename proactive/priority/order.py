@@ -59,7 +59,7 @@ class Order(Prioritized):
     return deadline - processing
   
   
-  def _releaseAt(self, timeLeftToProcess, deadline, processing, buff=0):
+  def _releaseAt(self, deadline, processing, buff=0):
     """
       The release time is calculate in the following way.
       r = deadline - processing - buff, where:
@@ -70,22 +70,22 @@ class Order(Prioritized):
               then the release for this order will be two minutes earlier,
               than the 15 minute period, so release will be 17 mins earlier than deadline.
      
-     @param timeLeftToProcess:(int) The time left to process the order (seconds)
-
      @param deadline:(int) The number of seconds left until the deadline.
 
      @param processing:(int) The number of seconds it will take to process the order
 
      @param buff:(int) The buffer period (seconds)
     """
-    # If the time to process the order is greater
-    # than the deadline, this is urgent and the order
-    # should be released ASAP.
-    if timeLeftToProcess > deadline - buff: 
-      return datetime.now()
     
     deadlineTimeFormat = datetime.now() + timedelta(seconds=deadline)
-    return (deadlineTimeFormat - timedelta(seconds=processing)) - timedelta(seconds=buff)
+    releaseAt = (deadlineTimeFormat - timedelta(seconds=processing)) - timedelta(seconds=buff)
+
+    # if the calculation 'underflows'
+    # set the release time to now.
+    if releaseAt < datetime.now():
+      return datetime.now()
+    
+    return releaseAt
     
 
   def priority(self):

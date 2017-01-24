@@ -62,7 +62,7 @@ class OrderTest(unittest2.TestCase):
     
     # Expected release time is 5 mins from now.
     expectedReleaseAtTime = (datetime.now() + timedelta(seconds=deadline) - timedelta(seconds=processing)).isoformat()
-    releaseAtTime = order._releaseAt(order.timeLeftToProcess, deadline, processing).isoformat()
+    releaseAtTime = order._releaseAt(deadline, processing).isoformat()
 
     # Compare them as string, with no seconds.
     expectedReleaseAtTime = expectedReleaseAtTime[:-7]
@@ -90,12 +90,57 @@ class OrderTest(unittest2.TestCase):
         timedelta(seconds=buff)
       ).isoformat()
 
-    releaseAtTime = order._releaseAt(order.timeLeftToProcess, deadline, processing, buff=buff).isoformat()
+    releaseAtTime = order._releaseAt(deadline, processing, buff=buff).isoformat()
 
     # Compare them as string, with no seconds.
     expectedReleaseAtTime = expectedReleaseAtTime[:-7]
     releaseAtTime = releaseAtTime[:-7]
     self.assertEqual(expectedReleaseAtTime, releaseAtTime)
+
+  def test_releaseAtImmediateDeadline(self):
+    deadline = 0 # 0 mins
+    processing = 300 # 5 mins
+
+    order = Order(
+      id=1, 
+      deadline=self.deadline, 
+      profit=self.profit, 
+      processing=self.processing
+    )
+
+    # Expected release time is now.
+    expectedReleaseAtTime = datetime.now().isoformat()
+
+    releaseAtTime = order._releaseAt(deadline, processing).isoformat()
+
+    # Compare them as string, with no seconds.
+    expectedReleaseAtTime = expectedReleaseAtTime[:-7]
+    releaseAtTime = releaseAtTime[:-7]
+    self.assertEqual(expectedReleaseAtTime, releaseAtTime)
+
+  def test_releaseAtImmediateDeadlineWithBuffPeriod(self):
+    deadline = 0 # 0 mins
+    processing = 300 # 5 mins
+    buff = 120 # 2 mins
+
+    order = Order(
+      id=1, 
+      deadline=self.deadline, 
+      profit=self.profit, 
+      processing=self.processing
+    )
+
+    # Expected release time is now.
+    expectedReleaseAtTime = datetime.now().isoformat()
+
+    releaseAtTime = order._releaseAt(deadline, processing, buff=buff).isoformat()
+
+    # Compare them as string, with no seconds.
+    expectedReleaseAtTime = expectedReleaseAtTime[:-7]
+    releaseAtTime = releaseAtTime[:-7]
+    self.assertEqual(expectedReleaseAtTime, releaseAtTime)
+
+    
 
 
 if __name__ == "__main__":
