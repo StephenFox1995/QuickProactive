@@ -23,10 +23,9 @@ class PriorityWorker(object):
     self._businessID = businessID
     self._queue = queue
     self._refresh = IntervalTrigger(seconds=(refresh / 1000))
-
     self._scheduler = BlockingScheduler()
-    self._begin()
-
+  
+  
   def _updateDatabaseWithPriorities(self):
     queueAsDict = self._queue.asDict()
     queueAsDict["businessID"] = self._businessID
@@ -35,7 +34,7 @@ class PriorityWorker(object):
     
     
 
-  def _begin(self):
+  def begin(self):
     job = self._scheduler.add_job(self._updateDatabaseWithPriorities, trigger=self._refresh)
     self._scheduler.start()
     
