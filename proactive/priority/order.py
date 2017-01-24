@@ -1,5 +1,6 @@
 from prioritized import Prioritized
 from datetime import datetime, timedelta
+from dateutil import parser
 
 class Order(Prioritized):
    #Constructor (should only be invoked with keyword parameters)
@@ -46,7 +47,6 @@ class Order(Prioritized):
       Calculates the time (ISO format) with n seconds added.
     """
     return (datetime.now() + timedelta(seconds=seconds)).isoformat()
-    
 
 
   def _timeLeftToProcess(self, deadline, processing):
@@ -87,7 +87,8 @@ class Order(Prioritized):
     
 
   def priority(self):
-    return 10
+    deadlineTimestamp = parser.parse(self.deadlineISO)
+    return deadlineTimestamp
   
   def __lt__(self, other):
     return self.priority() < other.priority()
