@@ -49,13 +49,13 @@ class Order(Prioritized):
     
 
 
-
   def _timeLeftToProcess(self, deadline, processing):
     """
       Calculate the time left to process an order based on 
       t = deadline - processing
     """
     return deadline - processing
+  
   
   def _releaseAt(self, timeLeftToProcess, deadline, processing, buff=0):
     """
@@ -83,7 +83,7 @@ class Order(Prioritized):
       return datetime.now()
     
     deadlineTimeFormat = datetime.now() + timedelta(seconds=deadline)
-    return deadlineTimeFormat - (timedelta(seconds=buff) - timedelta(seconds=processing))
+    return deadlineTimeFormat - (timedelta(seconds=processing) - timedelta(seconds=buff))
     
 
   def priority(self):
