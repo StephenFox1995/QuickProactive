@@ -89,9 +89,8 @@ class Order(Prioritized):
     
 
   def priority(self):
-    deadlineTimestamp = parser.parse(self.deadlineISO)
-    return deadlineTimestamp
-  
+    return parser.parse(self.deadlineISO)
+    
   def __lt__(self, other):
     return self.priority() < other.priority()
   
