@@ -32,8 +32,7 @@ class PriorityWorker(object):
     orders = self.__readUnprocessedOrders()
     for order in orders:
       print(order)
-
-      # deadline = self._calculateCustomerArrivalTime(order)
+      deadline = self._calculateCustomerArrivalTime(order)
 
   def _calculateCustomerArrivalTime(self, order):
     lat = order["coordinates"]["lat"]

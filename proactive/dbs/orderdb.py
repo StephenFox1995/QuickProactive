@@ -8,7 +8,7 @@ class OrderDB(Database):
 
   def read(self, businessID):
     super(OrderDB, self).read()
-    orders = self._database.orders.aggregate([
+    pipeline = [
       { 
         "$match": {
           "businessID": ObjectId(businessID), 
@@ -22,12 +22,12 @@ class OrderDB(Database):
           "businessID": 1,
           "userID": 1,
           "cost": 1,
-          "location": 1,
+          "coordinates": 1,
           "processing": 1,
           "status": 1
         }
       }
-    ])
-    return orders
+    ]
+    return self._database.orders.aggregate(pipeline)
     
     
