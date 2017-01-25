@@ -14,6 +14,6 @@ class PriorityService(object):
     pQueue = OrderPriorityQueue()
     pWorker = PriorityWorker(business, self._orderDBConn, pQueue, refresh=refresh)
     self.__workers["businessID"] = pWorker
-    pWorker.begin()
+    pWorker.run()
     
    

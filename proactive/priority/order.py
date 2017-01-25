@@ -1,8 +1,14 @@
 from prioritized import Prioritized
 from datetime import datetime, timedelta
 from dateutil import parser
+from enum import Enum
+
 
 class Order(Prioritized):
+  class Status(object):
+    UNPROCESSED = "unprocessed"
+    PROCESSED = "processed"
+
    #Constructor (should only be invoked with keyword parameters)
   def __init__(self, id, deadline, profit, processing):
     """

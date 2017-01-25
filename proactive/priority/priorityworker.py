@@ -15,26 +15,23 @@ class PriorityWorker(object):
         for new orders. How often the database should be written to with the current state of the
         priority queue.
     """
-
     self._coordinates = business["coordinates"]
     self._businessID =  business["id"]
-    
-    self.ordersDBConn = ordersDBConn
+    self._ordersDBConn = ordersDBConn
     self._queue = queue
     self._config = Configuration()
     self._travel = Travel(gmapsKey=self._config.read([Configuration.GMAPS_KEY])[0])
   
-  def __readOrders(self):
-    # TODO: only get orders that have not been delivered.
-    orders = self.ordersDBConn.orders.find({"businessID": self._businessID})
-
-  def begin(self):
+  def __readUnprocessedOrders(self):
+    return self._ordersDBConn.read(self._businessID)
+    
+  def run(self):
     self._loop()
 
   def _loop(self):
-    orders = self.__readOrders()
+    orders = self.__readUnprocessedOrders()
     for order in orders:
-      pass
+      print(order)
       # deadline = self._calculateCustomerArrivalTime(order)
 
   def _calculateCustomerArrivalTime(self, order):
