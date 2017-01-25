@@ -1,41 +1,50 @@
-from apscheduler.schedulers.blocking import BlockingScheduler
-from apscheduler.triggers.interval import IntervalTrigger
-from datetime import timedelta
-from db import Database
-import logging
+from ..config import Configuration
+from ..travel import Travel
 
 class PriorityWorker(object):
-  def __init__(self, dbConnection, businessID, queue, refresh=5000):
+  def __init__(self, business, ordersDBConn, queue, refresh=5000):
+    pass
     """
-      @param dbConnection:(priority.PriorityDB) Connection to the database where 
-        the priority queue will be written to periodically.
-
+      @param ordersDBConn:(db.prioritydb.PriorityDB) Database connection to read orders from.
+      
       @param businessID:(str) The id of the business.
 
-      @param queue:(proactive.priority.Priority) OrderPriorityQueue class.
+      @param queue:(orderpriority.OrderPriorityQueue) A OrderPriorityQueue instance.
 
       @param refresh:(int) - milliseconds: How often the database should be read to when checking
         for new orders. How often the database should be written to with the current state of the
         priority queue.
     """
-    logging.basicConfig() # Set logger.
-    self._dbConnection = dbConnection
-    self._businessID = businessID
-    self._queue = queue
-    self._refresh = IntervalTrigger(seconds=(refresh / 1000))
-    self._scheduler = BlockingScheduler()
-  
-  
-  def _updateDatabaseWithPriorities(self):
-    queueAsDict = self._queue.asDict()
-    queueAsDict["businessID"] = self._businessID
-    result = self._dbConnection.write(self._businessID, queueAsDict)
-    print(result)
+
+    self._coordinates = business["coordinates"]
+    self._businessID =  business["id"]
     
+    self.ordersDBConn = ordersDBConn
+    self._queue = queue
+    self._config = Configuration()
+    self._travel = Travel(gmapsKey=self._config.read([Configuration.GMAPS_KEY])[0])
   
+  def __readOrders(self):
+    # TODO: only get orders that have not been delivered.
+    orders = self.ordersDBConn.orders.find({"businessID": self._businessID})
+
   def begin(self):
-    job = self._scheduler.add_job(self._updateDatabaseWithPriorities, trigger=self._refresh)
-    self._scheduler.start()
+    self._loop()
+
+  def _loop(self):
+    orders = self.__readOrders()
+    for order in orders:
+      pass
+      # deadline = self._calculateCustomerArrivalTime(order)
+
+  def _calculateCustomerArrivalTime(self, order):
+    lat = order["coordinates"]["lat"]
+    lng = order["coordinates"]["lng"]
+    travel.find(businessLocation, testlocation1, metric.DURATION, measure="value")
+    self._travel.find()
+
+  def _calculateCustomerDistance(self, order):
+    pass
     
 
 
