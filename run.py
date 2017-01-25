@@ -3,7 +3,7 @@ from proactive.travel import metric
 from proactive import coordinate
 from proactive import Config
 from proactive import Order
-from proactive import Priority
+from proactive import OrderPriorityQueue
 from proactive import PriorityWorker
 from proactive import PriorityDB
 
@@ -18,7 +18,6 @@ if __name__ == "__main__":
   testLocation2 = coordinate("53.344159", "-6.276262")
   testLocation3 = coordinate("53.343327", "-6.27432")
 
-  
   test1deadline = travel.find(businessLocation, testlocation1, metric.DURATION, measure="value")
   test2deadline = travel.find(businessLocation, testLocation2, metric.DURATION, measure="value")
   test3deadline = travel.find(businessLocation, testLocation3, metric.DURATION, measure="value")
@@ -28,7 +27,7 @@ if __name__ == "__main__":
   orderThree = Order(id=3, deadline=test3deadline, profit=12, processing=200)
 
   orders = [orderOne, orderTwo, orderThree]
-  priority = Priority(orders)
+  priority = OrderPriorityQueue(orders)
   
   db = PriorityDB(mongo["uri"], mongo["port"], mongo["database"], mongo["username"], mongo["password"])
   db.connect()

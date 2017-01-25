@@ -6,26 +6,13 @@ from priority import OrderPriorityQueue
 from priority import Order
 
 class OrderPriorityQueueTest(unittest2.TestCase):
-  def setUp(self):
-    pass
-    # self.items = [
-    #   Order(1, 0, 300, 0),
-    #   Order(2, 0, 400, 0),
-    #   Order(3, 0, 500, 0),
-    #   Order(4, 0, 600, 0),
-    #   Order(5, 0, 700, 0),
-    #   Order(6, 0, 800, 0),
-    #   Order(7, 0, 900, 0),
-    #   Order(8, 0, 1000, 0)
-    # ]
-    # self.pQueue = Priority(self.items)
-  
+    
   def test_count(self):
     items = [Order(1, 0, 300, 0)]
     pQueue = OrderPriorityQueue()
     pQueue.add(items)
     self.assertEqual(pQueue.count(), 1)
-    
+
   def test_addToEmptyQueue(self):
     items = [Order(1, 0, 300, 0)]
     pQueue = OrderPriorityQueue()

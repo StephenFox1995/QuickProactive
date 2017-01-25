@@ -12,7 +12,7 @@ class PriorityWorker(object):
 
       @param businessID:(str) The id of the business.
 
-      @param queue:(priority.Priority) PriorityQueue class.
+      @param queue:(proactive.priority.Priority) OrderPriorityQueue class.
 
       @param refresh:(int) - milliseconds: How often the database should be read to when checking
         for new orders. How often the database should be written to with the current state of the
@@ -32,8 +32,7 @@ class PriorityWorker(object):
     result = self._dbConnection.write(self._businessID, queueAsDict)
     print(result)
     
-    
-
+  
   def begin(self):
     job = self._scheduler.add_job(self._updateDatabaseWithPriorities, trigger=self._refresh)
     self._scheduler.start()

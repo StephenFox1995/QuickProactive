@@ -25,3 +25,4 @@ class Database(object):
     Closes the current connection to the database.
     """
     self.client.close()
+  

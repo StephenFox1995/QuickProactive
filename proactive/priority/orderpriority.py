@@ -9,7 +9,7 @@ class OrderPriorityQueue(object):
       if type(items) is not list:
         raise TypeError("items arg should be of type list")
       # Check that all types are in Prioritized sub tree.
-      [all(isinstance(i, Prioritized) for i in items)]
+      [(isinstance(i, Prioritized) for i in items)]
       self.add(items)
 
 
