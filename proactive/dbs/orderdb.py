@@ -8,7 +8,26 @@ class OrderDB(Database):
 
   def read(self, businessID):
     super(OrderDB, self).read()
-    return self._database.orders.find({
-      "businessID": ObjectId(businessID), 
-      "status": Order.Status.UNPROCESSED
-    })
+    orders = self._database.orders.aggregate([
+      { 
+        "$match": {
+          "businessID": ObjectId(businessID), 
+          "status": Order.Status.UNPROCESSED
+        }
+      },
+      { 
+        "$project": {
+          "_id": 0,
+          "id": "$_id",
+          "businessID": 1,
+          "userID": 1,
+          "cost": 1,
+          "location": 1,
+          "processing": 1,
+          "status": 1
+        }
+      }
+    ])
+    return orders
+    
+    
