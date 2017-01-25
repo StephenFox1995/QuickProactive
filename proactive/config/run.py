@@ -1,4 +1,4 @@
-from config import Config
+from config import Configuration
 import argparse
 
 def args():
@@ -110,7 +110,7 @@ def printArgs(objectList, format="raw"):
 
 def handleArgs(parser):
   args = parser.parse_args()
-  config = Config()
+  config = Configuration()
   ADD_ARG = "add"
   DELETE_ARG = "del"
 

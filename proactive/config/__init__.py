@@ -1,2 +1,1 @@
-import run
-from config import Config
+from configuration import Configuration

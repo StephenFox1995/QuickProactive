@@ -3,7 +3,7 @@ import json
 import subprocess
 
 
-class Config(object):
+class Configuration(object):
   """
     Class to edit configuration file.
   """
