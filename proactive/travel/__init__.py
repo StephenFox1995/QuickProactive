@@ -1,2 +1,2 @@
-import coord, metric
-from travel import Travel
+from . import coord, metric
+from .travel import Travel

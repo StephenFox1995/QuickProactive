@@ -1,6 +1,6 @@
 from abc import ABCMeta, abstractmethod
 
-class Prioritized:
+class Prioritized(object):
   __metaclass__ = ABCMeta
 
   @abstractmethod

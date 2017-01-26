@@ -1,1 +1,1 @@
-import order, orderpriority, priorityworker, priorityservice
+from . import order, orderpriority, priorityworker, priorityservice

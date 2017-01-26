@@ -1,5 +1,4 @@
-import json
-import metric as Metric
+from . import metric as Metric
 
 """
   Encapusulates a response from the Google Maps API, specifically the Distance Matrix API.
@@ -24,4 +23,4 @@ class GmapsResponse(object):
     if metric == Metric.DURATION or metric == Metric.DISTANCE:
       return self.dict["rows"][row]["elements"][0][metric][measure]
     else:
-      raise ValueError("Uknown %s information to find" % find)
+      raise ValueError("Uknown mertic: %s" % metric)

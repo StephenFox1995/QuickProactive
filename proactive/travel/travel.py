@@ -1,7 +1,7 @@
-import googlemaps
-from coord import coordinate
-from gmapsresponse import GmapsResponse
 from datetime import datetime
+import googlemaps
+from .gmapsresponse import GmapsResponse
+
 
 class Travel(object):
   def __init__(self, gmapsKey, rateLimit=20):
@@ -44,7 +44,7 @@ class Travel(object):
     # New location to find?
     if self._lastOrig != orig and self._lastDest != dest:
       shouldFetch = True
-      
+
     self._lastOrig = orig
     self._lastDest = dest
 
@@ -55,8 +55,8 @@ class Travel(object):
 
     if shouldFetch:
       # Send request.
-      self._response = GmapsResponse(self._gmaps.distance_matrix(orig, dest, mode=mode))
+      response = GmapsResponse(self._gmaps.distance_matrix(orig, dest, mode=mode))
       # Record the request time
       self._mostRecentRequestTime = datetime.now()
 
-    return self._response.matrixInfo(metric, measure)
+    return response.matrixInfo(metric, measure)

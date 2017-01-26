@@ -1,5 +1,6 @@
-from database import Database
 from bson.objectid import ObjectId
+from .database import Database
+
 
 class BusinessDB(Database):
   def __init__(self, uri, port, dbName, user=None, password=None):

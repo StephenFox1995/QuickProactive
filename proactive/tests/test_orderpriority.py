@@ -1,12 +1,15 @@
-import unittest2
 import sys
-
+from proactive.priority.order import OrderPriorityQueue
+from proactive.priority.order import Order
+import unittest2
 sys.path.append("../")
-from priority import OrderPriorityQueue
-from priority import Order
+
+
+
+
 
 class OrderPriorityQueueTest(unittest2.TestCase):
-    
+
   def test_count(self):
     items = [Order(1, 0, 300, 0)]
     pQueue = OrderPriorityQueue()
@@ -18,7 +21,7 @@ class OrderPriorityQueueTest(unittest2.TestCase):
     pQueue = OrderPriorityQueue()
     pQueue.add(items)
     self.assertEqual(pQueue.count(), 1)
-    
+
   def test_addToPopulatedQueue(self):
     items = [
       Order(1, 0, 300, 0),
@@ -28,13 +31,13 @@ class OrderPriorityQueueTest(unittest2.TestCase):
     item = Order(3, 0, 300, 0)
     pQueue.add(item)
     self.assertEqual(pQueue.count(), 3)
-  
+
   def test_addWithNonListObject(self):
     item = Order(1, 0, 300, 0)
     pQueue = OrderPriorityQueue()
     pQueue.add(item)
     self.assertEqual(pQueue.count(), 1)
-    
+
   def test_popEmptyQueue(self):
     pQueue = OrderPriorityQueue()
     with self.assertRaises(IndexError):
@@ -59,7 +62,7 @@ class OrderPriorityQueueTest(unittest2.TestCase):
     self.assertEqual(items[1], pQueue.pop())
     self.assertEqual(items[2], pQueue.pop())
     self.assertEqual(items[0], pQueue.pop())
-  
+
   def test_popPopulatedQueueAfterAdd(self):
     items = [
       Order(2, 300, 10, 0),
@@ -71,8 +74,8 @@ class OrderPriorityQueueTest(unittest2.TestCase):
     self.assertEqual(items[1], pQueue.pop())
     self.assertEqual(items[2], pQueue.pop())
     self.assertEqual(items[0], pQueue.pop())
-  
 
-  
+
+
 if __name__ == "__main__":
   unittest2.main()

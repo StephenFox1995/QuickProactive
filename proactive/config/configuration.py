@@ -1,6 +1,5 @@
 import os
 import json
-import subprocess
 
 
 class Configuration(object):
@@ -18,8 +17,8 @@ class Configuration(object):
   _MONGO_DATABASES = "databases"
   _GMAPS = "gmaps"
   _TOKEN = "token"
-  _FILE_TEMPLATE = {"databases": [] }
-  
+  _FILE_TEMPLATE = {"databases": []}
+
   @staticmethod
   def checkRoot():
     """
@@ -35,7 +34,7 @@ class Configuration(object):
      Creates the configuration file where settings and configurations
      are stored.
     """
-    Config.checkRoot()
+    Configuration.checkRoot()
     if not os.path.exists(self._CONFIG_DIR):
       os.mkdir(self._CONFIG_DIR)
 
@@ -67,15 +66,15 @@ class Configuration(object):
       @param password:(str) The password.
     """
     fileContents = self.__readConfigFile()
-    newDatabase = { "uri": uri, "port": port, "database": database }
+    newDatabase = {"uri": uri, "port": port, "database": database}
 
     if username != None and password != None:
       newDatabase["username"] = username
       newDatabase["password"] = password
-      
+
     fileContents[self._MONGO_DATABASES].append(newDatabase)
     self.__writeConfigFile(fileContents)
-  
+
   def deleteMongoDatabase(self, uri, port, database):
     """
       Removes details for a database, from the databases list in the
@@ -89,9 +88,9 @@ class Configuration(object):
     """
     fileContents = self.__readConfigFile()
     databases = fileContents[self._MONGO_DATABASES]
-    dbToCheck = { "uri": uri, "port": port, "database": database }
+    dbToCheck = {"uri": uri, "port": port, "database": database}
     for (i, value) in enumerate(databases):
-      if (self.__dbCompare(databases[i], dbToCheck)):
+      if (self.__dbCompare(value, dbToCheck)):
         del databases[i]
     print(databases)
 
@@ -148,11 +147,11 @@ class Configuration(object):
     fileContents = self.__readConfigFile()
     del fileContents[self._TOKEN]
     self.__writeConfigFile(fileContents)
-    
+
   def read(self, prop):
     """
       Reads a property or properties from the config file.
-      If the property exists it will be returned, otherwise if 
+      If the property exists it will be returned, otherwise if
       the property doesn't exist then the method will silently fail
       and None will be returned.
 
@@ -160,7 +159,7 @@ class Configuration(object):
       @return list of the properties.
     """
     fileContents = self.__readConfigFile()
-    if type(prop) is list:
+    if isinstance(prop, list):
       data = []
       for p in prop:
         if p in fileContents:
@@ -172,16 +171,16 @@ class Configuration(object):
     """
       Read from the configuration file defined by __CONFIG_FILE_PATH.
     """
-    with open(self._CONFIG_FILE_PATH) as file:
-      return json.load(file)
-      
+    with open(self._CONFIG_FILE_PATH) as fp:
+      return json.load(fp)
+
 
   def __writeConfigFile(self, contents):
     """
       Write to the configuration file defined by __CONFIG_FILE_PATH.
       Note: must have root priveleges.
     """
-    Config.checkRoot()
+    Configuration.checkRoot()
     with open(self._CONFIG_FILE_PATH, "w+") as fp:
       contents = json.dumps(contents, indent=2, sort_keys=True)
       fp.write(contents)

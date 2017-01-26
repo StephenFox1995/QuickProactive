@@ -1,12 +1,11 @@
 import heapq as heap
-from prioritized import Prioritized
-import json
+from .prioritized import Prioritized
 
 class OrderPriorityQueue(object):
   def __init__(self, items=None):
     self._pQueue = []
     if items != None:
-      if type(items) is not list:
+      if not isinstance(items, list):
         raise TypeError("items arg should be of type list")
       # Check that all types are in Prioritized sub tree.
       [all(isinstance(i, Prioritized) for i in items)]
@@ -18,7 +17,7 @@ class OrderPriorityQueue(object):
       [heap.heappush(self._pQueue, i) for i in obj]
     elif isinstance(obj, Prioritized):
       heap.heappush(self._pQueue, obj)
-  
+
   def pop(self):
     return heap.heappop(self._pQueue)
 
