@@ -1,1 +1,1 @@
-#Proactive Module for Quick
+Proactive Module for Quick
