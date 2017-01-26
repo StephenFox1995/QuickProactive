@@ -1,8 +1,7 @@
-import sys
 from datetime import datetime, timedelta
 from proactive.priority.order import Order
 import unittest2
-sys.path.append("../")
+# sys.path.append("../")
 
 
 class OrderTest(unittest2.TestCase):
@@ -142,8 +141,3 @@ class OrderTest(unittest2.TestCase):
     expectedReleaseAtTime = expectedReleaseAtTime[:-7]
     releaseAtTime = releaseAtTime[:-7]
     self.assertEqual(expectedReleaseAtTime, releaseAtTime)
-
-
-
-if __name__ == "__main__":
-  unittest2.main()

@@ -1,12 +1,6 @@
-import sys
-from proactive.priority.order import OrderPriorityQueue
+from proactive.priority.orderpriority import OrderPriorityQueue
 from proactive.priority.order import Order
 import unittest2
-sys.path.append("../")
-
-
-
-
 
 class OrderPriorityQueueTest(unittest2.TestCase):
 
@@ -75,7 +69,3 @@ class OrderPriorityQueueTest(unittest2.TestCase):
     self.assertEqual(items[2], pQueue.pop())
     self.assertEqual(items[0], pQueue.pop())
 
-
-
-if __name__ == "__main__":
-  unittest2.main()
