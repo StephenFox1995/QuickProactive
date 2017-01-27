@@ -1,5 +1,7 @@
-from ..config import Configuration
-from ..travel import Travel, coord, metric
+import time
+from proactive.config import Configuration
+from proactive.travel import Travel, coord, metric
+
 
 class PriorityWorker(object):
   def __init__(self, business, ordersDBConn, queue, refresh=5000):
@@ -27,7 +29,9 @@ class PriorityWorker(object):
 
 
   def run(self):
-    self._loop()
+    while(True):
+      self._loop()
+      time.sleep(self._refresh/1000)
 
 
   def _loop(self):
