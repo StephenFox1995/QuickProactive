@@ -36,7 +36,6 @@ def beginWorker():
     business = json.get("business")
     businessID = business["businessID"]
     refresh = json["refresh"]
-    print(refresh)
 
     # Setup connection to orders database.
     businessDBConn = BusinessDB(
@@ -48,7 +47,7 @@ def beginWorker():
     )
     businessDBConn.connect()
     business = businessDBConn.read(businessID)
-    priorityService.new(business, refresh=refresh)
+    priorityService.newWorker(business=business, workerID=businessID, refresh=refresh)
     return Response(response="Success")
   return Response(response="Failed")
 

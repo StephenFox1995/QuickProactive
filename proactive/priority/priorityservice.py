@@ -6,7 +6,7 @@ class PriorityService(object):
     self._orderDBConn = orderDBConn
     self.__workers = {}
 
-  def new(self, business, refresh=5000):
+  def newWorker(self, business, workerID, refresh=5000):
     """
       Creates a new priorityworker.PriorityWorker to periodically
       calculate the priority of new orders.
@@ -17,5 +17,8 @@ class PriorityService(object):
     """
     pQueue = TaskUnitPriorityQueue()
     pWorker = PriorityWorker(business, self._orderDBConn, pQueue, refresh=refresh)
-    self.__workers["businessID"] = pWorker
+    self.__workers[workerID] = pWorker
     pWorker.run()
+
+  def stopWorker(self, workerID):
+    return self.__workers[workerID]

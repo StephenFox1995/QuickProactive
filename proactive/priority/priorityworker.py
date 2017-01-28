@@ -34,6 +34,9 @@ class PriorityWorker(object):
     self.__scheduler.add_job(self.__monitor, 'interval', seconds=self._refresh/1000)
     self.__scheduler.start()
 
+  def stop(self):
+    self.__scheduler.shutdown()
+
   def __monitor(self):
     """
       Monitors the unprocessed orders and keeps the queue attribute
