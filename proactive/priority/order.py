@@ -1,6 +1,9 @@
-from datetime import datetime, timedelta
-from dateutil import parser
+from datetime import datetime
+from dateutil import parser as dateparser
+from proactive.utils import timeutil
 from .prioritized import Prioritized
+from . import release
+
 
 
 class Order(Prioritized):
@@ -9,12 +12,13 @@ class Order(Prioritized):
     PROCESSED = "processed"
 
    #Constructor (should only be invoked with keyword parameters)
-  def __init__(self, orderID, deadline, profit, processing):
+  def __init__(self, orderID, createdAt, deadline, profit, processing):
     """
       @param orderID:(str) The id of the order.
       @param deadline:(int) The number of seconds for the deadline of this order.
       @param profit:(double) The profit from this order.
       @param processing:(int) The time in seconds it would take to process this order.
+      @param createdAt:(datetime.datetime) The time the order was made.
 
       j = (r,d,p,w)
       r - release time
@@ -27,69 +31,23 @@ class Order(Prioritized):
       d - deadline
       p - processing time
       w - weight profit
-
-      Assume: p = d - r
     """
     self.id = orderID
     self.profit = profit
     # Set time attrs so deadline, release etc are calculated correctly.
-    self.setTimeAttrs(deadline, processing)
-
-
-  def setTimeAttrs(self, deadline, processing):
+    self.createdAt = createdAt
     self.deadline = deadline
-    self.deadlineISO = self._addSeconds(datetime.now(), self.deadline).isoformat()
+    self.deadlineISO = timeutil.addSeconds(datetime.now(), self.deadline).isoformat()
     self.processing = processing
     # Re-calculate the time left to process.
-    self.timeLeftToProcess = self._timeLeftToProcess(self.deadline, self.processing)
+    self.timeLeftToProcess = release.timeToProcess(self)
     # Re-calculate the time until release.
-    self.release = self._releaseAt(self.timeLeftToProcess, self.deadline, self.processing)
+    self.release = release.releaseAt(self.deadline, self.processing, self.createdAt)
     self.releaseISO = self.release.isoformat()
 
 
-  def _addSeconds(self, time, seconds):
-    """
-      Adds n seconds to the time arg.
-    """
-    return time + timedelta(seconds=seconds)
-
-
-  def _timeLeftToProcess(self, deadline, processing):
-    """
-      Calculate the time left to process an order based on
-      t = deadline - processing
-    """
-    return deadline - processing
-
-
-  def _releaseAt(self, deadline, processing, buff=0):
-    """
-      The release time is calculate in the following way.
-      r = deadline - processing - buff, where:
-        deadline: is the time the order should be processed by.
-        processing: the time it will take to process the order.
-        buff: is a buffer period which can be seen as extra time to process.
-              For example if processing is 15 mins and buff is 2 mins,
-              then the release for this order will be two minutes earlier,
-              than the 15 minute period, so release will be 17 mins earlier than deadline.
-
-     @param deadline:(int) The number of seconds left until the deadline.
-
-     @param processing:(int) The number of seconds it will take to process the order
-
-     @param buff:(int) The buffer period (seconds)
-    """
-    deadlineTimeFormat = datetime.now() + timedelta(seconds=deadline)
-    releaseAt = (deadlineTimeFormat - timedelta(seconds=processing)) - timedelta(seconds=buff)
-    # if the calculation 'underflows'
-    # set the release time to now.
-    if releaseAt < datetime.now():
-      return datetime.now()
-    return releaseAt
-
-
   def priority(self):
-    return parser.parse(self.deadlineISO)
+    return dateparser.parse(self.deadlineISO)
 
   def __lt__(self, other):
     return self.priority() < other.priority()
