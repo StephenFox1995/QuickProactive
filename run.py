@@ -7,7 +7,7 @@ if __name__ == "__main__":
   mongo = config.read([config.DATABASES])[0][0]
   businessID = "58876b6905733be97fb526ad"
 
-  # Setup connection to orders database.
+  # Setup connection to business database.
   businessDBConn = BusinessDB(
     mongo["uri"],
     mongo["port"],
