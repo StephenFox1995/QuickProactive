@@ -1,6 +1,8 @@
 import time
 from proactive.config import Configuration
-from proactive.travel import Travel, coord, metric
+from proactive.travel import Travel, metric
+from .order import Order
+from .taskunit import TaskUnit
 
 
 class PriorityWorker(object):
@@ -10,7 +12,7 @@ class PriorityWorker(object):
 
       @param businessID:(str) The id of the business.
 
-      @param queue:(orderpriority.OrderPriorityQueue) A OrderPriorityQueue instance.
+      @param queue:(orderpriority.TaskUnitPriorityQueue) A OrderPriorityQueue instance.
 
       @param refresh:(int) - milliseconds: How often the database should be read to when checking
         for new orders. How often the database should be written to with the current state of the
@@ -30,27 +32,50 @@ class PriorityWorker(object):
 
   def run(self):
     while(True):
-      self._loop()
+      self.__monitor()
       time.sleep(self._refresh/1000)
 
+  def __monitor(self):
+    """
+      Monitors the unprocessed orders and keeps the queue attribute
+      in order according to how the orders should be released.
+    """
+    try:
+      self._queue.popAll()
+    except IndexError:
+      pass
 
-  def _loop(self):
-    orders = self.__readUnprocessedOrders()
-    for order in orders:
-      print(order)
-      deadline = self._calculateCustomerArrivalTime(order)
+    freshOrders = self.__readUnprocessedOrders()
+    for order in freshOrders:
+      orderObj = Order(
+        orderID=str(order["id"]),
+        status=order["status"],
+        processing=order["processing"],
+        customerCoordinates=order["coordinates"],
+        createdAt=order["createdAt"],
+        cost=order["cost"]
+      )
+      deadline = self._customerArrivalTime(orderObj.customerCoordinates)
+
+      taskUnit = TaskUnit(
+        orderObj.createdAt,
+        deadline,
+        orderObj.cost,
+        orderObj.processing,
+        orderObj.orderID
+      )
+      self._queue.add(taskUnit)
+      self._queue.printQueue()
 
 
-  def _calculateCustomerArrivalTime(self, order):
-    lat = order["coordinates"]["lat"]
-    lng = order["coordinates"]["lng"]
-    customerCoordinates = coord.coordinate(lat, lng)
+  def _customerArrivalTime(self, customerCoordinates):
     return self._travel.find(
       self._businessCoordinates,
       customerCoordinates,
       metric.DURATION,
       measure="value"
     )
+
 
   def _calculateCustomerDistance(self, order):
     pass

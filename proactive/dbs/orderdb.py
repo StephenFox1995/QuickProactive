@@ -20,6 +20,7 @@ class OrderDB(Database):
         "$project": {
           "_id": 0,
           "id": "$_id",
+          "createdAt": 1,
           "businessID": 1,
           "userID": 1,
           "cost": 1,

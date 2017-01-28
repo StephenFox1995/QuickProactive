@@ -1,4 +1,4 @@
-from .orderpriority import OrderPriorityQueue
+from .taskunitpriorityqueue import TaskUnitPriorityQueue
 from .priorityworker import PriorityWorker
 
 class PriorityService(object):
@@ -11,7 +11,7 @@ class PriorityService(object):
       Creates a new priorityworker.PriorityWorker to periodically
       calculate the priority of new orders.
     """
-    pQueue = OrderPriorityQueue()
+    pQueue = TaskUnitPriorityQueue()
     pWorker = PriorityWorker(business, self._orderDBConn, pQueue, refresh=refresh)
     self.__workers["businessID"] = pWorker
     pWorker.run()

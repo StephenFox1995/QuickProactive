@@ -18,24 +18,15 @@ def releaseAt(deadline, processing, created=datetime.now()):
 
   """
   _deadline = created + timedelta(seconds=deadline)
-  _processing = timedelta(processing)
-  release = _deadline - _processing
-  # if the calculation somehow
-  # underflows to a time before the order
-  # the release time should be set to the current time.
-  if release < created:
-    return datetime.now()
-  return release
+  _processing = timedelta(seconds=processing)
+  return _deadline - _processing
 
-
-def timeToProcess(order):
-  """
-    Calculates in seconds the time left to process an order based on
-    t = deadline - processing
-
-    @param order:(order.Order) The order instance.
-  """
-  return order.deadline - order.processing
+  # # if the calculation somehow
+  # # underflows to a time before the order
+  # # the release time should be set to the current time.
+  # if release < created:
+  #   return datetime.now()
+  # return release
 
 
 
