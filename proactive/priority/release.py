@@ -20,13 +20,3 @@ def releaseAt(deadline, processing, created=datetime.now()):
   _deadline = created + timedelta(seconds=deadline)
   _processing = timedelta(seconds=processing)
   return _deadline - _processing
-
-  # # if the calculation somehow
-  # # underflows to a time before the order
-  # # the release time should be set to the current time.
-  # if release < created:
-  #   return datetime.now()
-  # return release
-
-
-

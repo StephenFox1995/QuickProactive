@@ -1,4 +1,4 @@
-import time
+from apscheduler.schedulers.background import BackgroundScheduler
 from proactive.config import Configuration
 from proactive.travel import Travel, metric
 from .order import Order
@@ -25,21 +25,22 @@ class PriorityWorker(object):
     self._refresh = refresh
     self._config = Configuration()
     self._travel = Travel(gmapsKey=self._config.read([Configuration.GMAPS_KEY])[0])
+    self.__scheduler = BackgroundScheduler()
 
   def __readUnprocessedOrders(self):
     return self._ordersDBConn.read(self._businessID)
 
-
   def run(self):
-    while(True):
-      self.__monitor()
-      time.sleep(self._refresh/1000)
+    self.__scheduler.add_job(self.__monitor, 'interval', seconds=self._refresh/1000)
+    self.__scheduler.start()
 
   def __monitor(self):
     """
       Monitors the unprocessed orders and keeps the queue attribute
       in order according to how the orders should be released.
     """
+    from threading import current_thread
+    print(current_thread())
     try:
       self._queue.popAll()
     except IndexError:
