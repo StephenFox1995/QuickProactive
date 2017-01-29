@@ -1,5 +1,5 @@
 import heapq as heap
-from .prioritized import Prioritized
+from .priority import Priority
 
 class TaskUnitPriorityQueue(object):
   def __init__(self, items=None):
@@ -8,14 +8,14 @@ class TaskUnitPriorityQueue(object):
       if not isinstance(items, list):
         raise TypeError("items arg should be of type list")
       # Check that all types are in Prioritized sub tree.
-      [all(isinstance(i, Prioritized) for i in items)]
+      [all(isinstance(i, Priority) for i in items)]
       self.add(items)
 
 
   def add(self, obj):
     if isinstance(obj, list):
       [heap.heappush(self._pQueue, i) for i in obj]
-    elif isinstance(obj, Prioritized):
+    elif isinstance(obj, Priority):
       heap.heappush(self._pQueue, obj)
 
   def pop(self):
@@ -24,7 +24,7 @@ class TaskUnitPriorityQueue(object):
   def popAll(self):
     allElements = []
     for _ in range(0, self.count()):
-      allElements.append(self.pop())
+      allElements.append(self.pop().asDict())
     return allElements
 
   def count(self):

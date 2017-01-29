@@ -1,6 +1,6 @@
 from datetime import datetime, timedelta
 from proactive.utils import timeutil
-from unittest2 import TestCase
+from unittest import TestCase
 
 
 class TestTimeutil(TestCase):

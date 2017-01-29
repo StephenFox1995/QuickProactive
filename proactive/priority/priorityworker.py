@@ -1,6 +1,6 @@
 from apscheduler.schedulers.background import BackgroundScheduler
 from proactive.config import Configuration
-from proactive.travel import Travel, metric
+from proactive.travel import Travel, Metric
 from .order import Order
 from .taskunit import TaskUnit
 from .queueworker import QueueWorker
@@ -27,7 +27,7 @@ class PriorityWorker(QueueWorker):
     self._config = Configuration()
     self._travel = Travel(gmapsKey=self._config.read([Configuration.GMAPS_KEY])[0])
     self.__scheduler = BackgroundScheduler()
-    self.__queueState = None
+    self.__latestState = None
 
 
   def __readUnprocessedOrders(self):
@@ -64,7 +64,7 @@ class PriorityWorker(QueueWorker):
         cost=order["cost"]
       )
       deadline = self._customerArrivalTime(orderObj.customerCoordinates)
-
+      print(deadline)
       taskUnit = TaskUnit(
         orderObj.createdAt,
         deadline,
@@ -73,15 +73,15 @@ class PriorityWorker(QueueWorker):
         orderObj.orderID
       )
       self._pQueue.add(taskUnit)
-      self._pQueue.printQueue()
-      self.__queueState = self._pQueue.asDict()
+      self.__latestState = self._pQueue.asDict()
+      # self._pQueue.printQueue()
 
 
   def _customerArrivalTime(self, customerCoordinates):
     return self._travel.find(
       self._businessCoordinates,
       customerCoordinates,
-      metric.DURATION,
+      Metric.DURATION,
       measure="value"
     )
 
@@ -89,5 +89,5 @@ class PriorityWorker(QueueWorker):
     pass
 
   def currentQueueState(self):
-    return self.__queueState
+    return self.__latestState
 

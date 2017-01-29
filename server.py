@@ -1,8 +1,9 @@
+import json
 from flask import Flask, request, Response
 from proactive.config import Configuration
 from proactive.priority.priorityservice import PriorityService
 from proactive.dbs import BusinessDB, OrderDB
-import json
+
 
 app = Flask(__name__)
 config = Configuration()
@@ -31,12 +32,12 @@ def beginWorker():
       refresh: 5000
     }
   """
-  json = request.get_json()
+  json_ = request.get_json()
 
-  if json:
-    business = json.get("business")
+  if json_:
+    business = json_.get("business")
     businessID = business["businessID"]
-    refresh = json["refresh"]
+    refresh = json_["refresh"]
 
     # Setup connection to orders database.
     businessDBConn = BusinessDB(
@@ -63,7 +64,6 @@ def stopWorker():
     return Response(response="Failed!")
 
 
-
 @app.route("/priority")
 def priority():
   workerID = request.args["id"]
@@ -72,7 +72,6 @@ def priority():
     return Response(response=queueState)
   except KeyError:
     return Response(response="Failed!")
-
 
 
 if __name__ == "__main__":

@@ -1,6 +1,6 @@
 from datetime import datetime, timedelta
 import proactive.priority.release as release
-from unittest2 import TestCase
+from unittest import TestCase
 
 
 

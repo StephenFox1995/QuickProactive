@@ -1,6 +1,6 @@
 from proactive.priority.taskunitpriorityqueue import TaskUnitPriorityQueue
 from proactive.priority.taskunit import TaskUnit
-from unittest2 import TestCase
+from unittest import TestCase
 
 class TestTaskUnitPriorityQueue(TestCase):
   def setUp(self):
@@ -79,7 +79,6 @@ class TestTaskUnitPriorityQueue(TestCase):
     )
     with self.assertRaises(TypeError):
       _ = TaskUnitPriorityQueue(item)
-
 
   def test_popEmptyQueue(self):
     pQueue = TaskUnitPriorityQueue()

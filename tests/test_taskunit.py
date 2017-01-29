@@ -1,7 +1,8 @@
 from datetime import datetime
+from unittest import TestCase
 from proactive.priority.taskunit import TaskUnit
-from unittest2 import TestCase
-
+from proactive.utils import timeutil
+from proactive.priority import release
 
 class TestTaskUnit(TestCase):
   def setUp(self):
@@ -38,17 +39,24 @@ class TestTaskUnit(TestCase):
       processing=self.processing,
       taskID=self.taskID
     )
+    # Calculate the correct ISO for task.
+    expectedReleaseISO = release.releaseAt(
+      self.deadline,
+      self.processing,
+      self.createdAt
+    ).isoformat()
+    expectedDeadlineISO = timeutil.addSeconds(self.createdAt, self.deadline).isoformat()
+    expectedCreatedAtISO = self.createdAt.isoformat()
+
     expectedResult = {
       "id": self.taskID,
-      "releaseISO": "",
-      "deadlineISO": "",
+      "releaseISO": expectedReleaseISO,
+      "deadlineISO": expectedDeadlineISO,
+      "createdAtISO": expectedCreatedAtISO,
       "deadline": self.deadline,
       "profit": self.profit,
-      "processing": self.processing
+      "processing": self.processing,
     }
-    result = taskUnit.asDict()
-    expectedResult["releaseISO"] = result["releaseISO"] # this is ok
-    expectedResult["deadlineISO"] = result["deadlineISO"] # this is ok
     self.assertEqual(taskUnit.asDict(), expectedResult)
 
   def test_priority(self):
@@ -59,7 +67,6 @@ class TestTaskUnit(TestCase):
       processing=self.processing,
       taskID=self.taskID
     )
-    from proactive.utils import timeutil
     # As expected priority is just the deadline of the task, calculate it.
     deadline = timeutil.addSeconds(self.createdAt, self.deadline)
     expectedPriority = deadline
