@@ -1,9 +1,11 @@
+import logging
 from apscheduler.schedulers.background import BackgroundScheduler
 from proactive.config import Configuration
 from proactive.travel import Travel, Metric
 from .order import Order
 from .taskunit import TaskUnit
 from .queueworker import QueueWorker
+
 
 
 class PriorityWorker(QueueWorker):
@@ -34,12 +36,12 @@ class PriorityWorker(QueueWorker):
     return self._ordersDBConn.read(self._businessID)
 
   def run(self):
+    logging.basicConfig()
     self.__scheduler.add_job(self.__monitor, 'interval', seconds=self._refresh/1000)
     self.__scheduler.start()
 
   def stop(self):
     self.__scheduler.shutdown()
-
 
   def __monitor(self):
     """

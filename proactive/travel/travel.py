@@ -37,6 +37,10 @@ class Travel(object):
     def newGmapsClient(key):
       return googlemaps.Client(key=key)
 
+  #Keep cache of previous reponses, as to reduce requests on Google Maps API (free version)
+  # TODO: There has to be a better way of doing this.
+  __responseCache = {}
+
 
   def __init__(self, gmapsKey):
     """
@@ -48,6 +52,7 @@ class Travel(object):
     """
     self._gmapsKey = gmapsKey
     self._gmapsClient = self.GmapsFactory.newGmapsClient(key=self._gmapsKey)
+
 
 
   def find(self, orig, dest, metric, mode="walking", measure="value"):
@@ -68,6 +73,12 @@ class Travel(object):
       @param measure:(string) Whether to return a text based measure or a correct
         measure according to the value. E.g text=4.32km, value=4.25
     """
+    coords = "%s,%s" % (orig, dest) # used as key for cache.
     # Send request.
-    response = GmapsResponse(self._gmapsClient.distance_matrix(orig, dest, mode=mode))
+    try:
+      response = self.__responseCache[coords]
+    except KeyError:
+      response = GmapsResponse(self._gmapsClient.distance_matrix(orig, dest, mode=mode))
+      self.__responseCache[coords] = response
+
     return response.matrixInfo(metric, measure)
