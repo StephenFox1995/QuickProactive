@@ -37,19 +37,36 @@ class GoogleMapsClient(object):
 class TestTravel(TestCase):
 
   @patch('proactive.travel.Travel.GmapsFactory')
-  def test_findWithValueMetric(self, GmapsFactoryMock):
+  def test_findDurationMetricWithValueMeasure(self, GmapsFactory):
     gmapsKey = "mockKey1234" # key not needed as GmapsClient will be mocked.
-    GmapsFactoryMock.newGmapsClient.return_value = GoogleMapsClient()
+    GmapsFactory.newGmapsClient.return_value = GoogleMapsClient()
 
-    businessCoordinates = {"lat": 53.345376, "lng": -6.279931}
-    customerCoordinates = {"lat": 53.345466, "lng": -6.278987}
+    businessCoordinates = {"lat": 53.345376, "lng": -6.279931} # only used for init
+    customerCoordinates = {"lat": 53.345466, "lng": -6.278987} # only used for init
 
     travel = Travel(gmapsKey)
-    arrivalTime = travel.find(
+    timeUntilArrival = travel.find(
       businessCoordinates,
       customerCoordinates,
       Metric.DURATION,
       measure="value"
     )
-    self.assertEqual(arrivalTime, gmapsResponse["rows"][0]["elements"][0]["duration"]["value"])
+    self.assertEqual(timeUntilArrival, gmapsResponse["rows"][0]["elements"][0]["duration"]["value"])
 
+
+  @patch('proactive.travel.Travel.GmapsFactory')
+  def test_findDistanceMetricWithValueMeasure(self, GmapsFactory):
+    gmapsKey = "mockKye1234"
+    GmapsFactory.newGmapsClient.return_value = GoogleMapsClient()
+
+    businessCoordinates = {"lat": 53.345376, "lng": -6.279931} # only used for init
+    customerCoordinates = {"lat": 53.345466, "lng": -6.278987} # only used for init
+
+    travel = Travel(gmapsKey)
+    distance = travel.find(
+      businessCoordinates,
+      customerCoordinates,
+      Metric.DISTANCE,
+      measure="value"
+    )
+    self.assertEqual(distance, gmapsResponse["rows"][0]["elements"][0]["distance"]["value"])
