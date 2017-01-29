@@ -1,5 +1,5 @@
 import json
-from flask import Flask, request, Response
+from flask import Flask, request, Response, jsonify
 from flask_cors import CORS, cross_origin
 from proactive.config import Configuration
 from proactive.priority.priorityservice import PriorityService
@@ -42,6 +42,7 @@ def beginWorker():
     refresh = json_["refresh"]
 
     # Setup connection to orders database.
+    # TODO: maybe get rid of this and make client send business details.
     businessDBConn = BusinessDB(
       mongo["uri"],
       mongo["port"],
@@ -51,9 +52,22 @@ def beginWorker():
     )
     businessDBConn.connect()
     business = businessDBConn.read(businessID)
-    priorityService.newWorker(business=business, workerID=businessID, refresh=refresh)
-    return Response(response="Success!")
-  return Response(response="Failed!")
+    businessDBConn.close()
+
+    try:
+      priorityService.newWorker(business=business, workerID=businessID, refresh=refresh)
+      return jsonify({
+        "status": "Success"
+      })
+    except priorityService.DuplicateWorkerException:
+      return jsonify({
+        "status": "Failed",
+        "reason": "Worker already exists for id: %s" % businessID
+      })
+    else:
+      return jsonify({
+        "status": "Failed"
+      })
 
 
 @app.route("/stopWorker", methods=["GET"])
@@ -67,7 +81,7 @@ def stopWorker():
     return Response(response="Failed!")
 
 
-@app.route("/priority")
+@app.route("/queue")
 @cross_origin()
 def priority():
   workerID = request.args["id"]

@@ -1,7 +1,12 @@
 from .taskunitpriorityqueue import TaskUnitPriorityQueue
 from .priorityworker import PriorityWorker
 
+
+
 class PriorityService(object):
+  class DuplicateWorkerException(Exception):
+    pass
+
   def __init__(self, orderDBConn):
     self._orderDBConn = orderDBConn
     self.__workers = {}
@@ -15,6 +20,9 @@ class PriorityService(object):
       @param refresh:(int)  The refresh rate in milliseconds, i.e
                             how often the service will run.
     """
+    if workerID in self.__workers:
+      raise self.DuplicateWorkerException("Worker already exists with that id.")
+
     pWorker = PriorityWorker(
       business,
       self._orderDBConn,
