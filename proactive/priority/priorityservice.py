@@ -25,6 +25,13 @@ class PriorityService(object):
     pWorker.run()
 
   def workerQueueState(self, workerID):
+    """
+      Gets a workers queue state.
+      The state is gotten by invoking:
+        worker.currentQueueState()
+
+      @param workerID:(string) The id of the worker.
+    """
     worker = self.__workers[workerID] # throws KeyError if doesn't exist.
     return worker.currentQueueState()
 

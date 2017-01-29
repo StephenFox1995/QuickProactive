@@ -13,30 +13,57 @@ class TaskUnit(Prioritized):
         p - processing time
         w - weight profit.
     """
-    self.createdAt = createdAt
-    self.deadline = deadline
-    self.deadlineISO = timeutil.addSeconds(createdAt, self.deadline).isoformat()
-    self.processing = processing
-    self.release = release.releaseAt(self.deadline, self.processing, self.createdAt)
-    self.releaseISO = self.release.isoformat()
-    self.profit = profit
-    self.taskID = taskID
-    self.item = item
+    self._createdAt = createdAt
+    self._deadline = deadline
+    self._deadlineISO = timeutil.addSeconds(createdAt, self._deadline).isoformat()
+    self._processing = processing
+    self._release = release.releaseAt(self.deadline, self._processing, self.createdAt)
+    self._releaseISO = self._release.isoformat()
+    self._profit = profit
+    self._taskID = taskID
+    self._item = item
 
+  @property
+  def createdAt(self):
+    return self._createdAt
+
+  @property
+  def deadline(self):
+    return self._deadline
+
+  @property
+  def processing(self):
+    return self._processing
+
+  @property
+  def release(self):
+    return self._processing
+
+  @property
+  def profit(self):
+    return self._profit
+
+  @property
+  def taskID(self):
+    return self._taskID
+
+  @property
+  def item(self):
+    return self._item
 
   def __lt__(self, other):
     return self.priority() < other.priority()
 
   def priority(self):
-    return dateparser.parse(self.deadlineISO)
+    return dateparser.parse(self._deadlineISO)
 
   def asDict(self):
     return {
       "id": self.taskID,
-      "releaseISO": self.releaseISO,
-      "deadlineISO": self.deadlineISO,
-      "deadline": self.deadline,
-      "profit": self.profit,
-      "processing": self.processing
+      "releaseISO": self._releaseISO,
+      "deadlineISO": self._deadlineISO,
+      "deadline": self._deadline,
+      "profit": self._profit,
+      "processing": self._processing
     }
 
