@@ -24,7 +24,6 @@ class PriorityService(object):
     self.__workers[workerID] = pWorker
     pWorker.run()
 
-
   def workerQueueState(self, workerID):
     worker = self.__workers[workerID] # throws KeyError if doesn't exist.
     return worker.currentQueueState()
@@ -34,3 +33,4 @@ class PriorityService(object):
 
   def stopWorker(self, workerID):
     self.__workers[workerID].stop()
+    del self.__workers[workerID]

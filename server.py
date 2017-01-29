@@ -49,8 +49,20 @@ def beginWorker():
     businessDBConn.connect()
     business = businessDBConn.read(businessID)
     priorityService.newWorker(business=business, workerID=businessID, refresh=refresh)
-    return Response(response="Success")
-  return Response(response="Failed")
+    return Response(response="Success!")
+  return Response(response="Failed!")
+
+
+@app.route("/stopWorker", methods=["GET"])
+def stopWorker():
+  workerID = request.args["id"]
+  try:
+    priorityService.stopWorker(workerID)
+    return Response(response="Success!")
+  except KeyError:
+    return Response(response="Failed!")
+
+
 
 @app.route("/priority")
 def priority():
