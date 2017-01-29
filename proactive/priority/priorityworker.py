@@ -76,7 +76,6 @@ class PriorityWorker(QueueWorker):
       )
       self._pQueue.add(taskUnit)
       self.__latestState = self._pQueue.asDict()
-      # self._pQueue.printQueue()
 
 
   def _customerArrivalTime(self, customerCoordinates):

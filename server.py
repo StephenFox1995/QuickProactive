@@ -1,5 +1,6 @@
 import json
 from flask import Flask, request, Response
+from flask_cors import CORS, cross_origin
 from proactive.config import Configuration
 from proactive.priority.priorityservice import PriorityService
 from proactive.dbs import BusinessDB, OrderDB
@@ -22,6 +23,7 @@ priorityService = PriorityService(orderDBConn)
 
 
 @app.route("/beginWorker", methods=["POST"])
+@cross_origin()
 def beginWorker():
   """
     Runs a new worker to monitor orders for a business.
@@ -55,6 +57,7 @@ def beginWorker():
 
 
 @app.route("/stopWorker", methods=["GET"])
+@cross_origin()
 def stopWorker():
   workerID = request.args["id"]
   try:
@@ -65,6 +68,7 @@ def stopWorker():
 
 
 @app.route("/priority")
+@cross_origin()
 def priority():
   workerID = request.args["id"]
   try:
