@@ -15,10 +15,22 @@ class PriorityService(object):
       @param refresh:(int)  The refresh rate in milliseconds, i.e
                             how often the service will run.
     """
-    pQueue = TaskUnitPriorityQueue()
-    pWorker = PriorityWorker(business, self._orderDBConn, pQueue, refresh=refresh)
+    pWorker = PriorityWorker(
+      business,
+      self._orderDBConn,
+      TaskUnitPriorityQueue(),
+      refresh=refresh
+    )
     self.__workers[workerID] = pWorker
     pWorker.run()
 
+
+  def workerQueueState(self, workerID):
+    worker = self.__workers[workerID] # throws KeyError if doesn't exist.
+    return worker.currentQueueState()
+
+  def worker(self, workerID):
+    return self.__workers[workerID] # throws KeyError if doesn't exist.
+
   def stopWorker(self, workerID):
-    return self.__workers[workerID]
+    self.__workers[workerID].stop()

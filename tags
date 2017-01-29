@@ -5,6 +5,7 @@
 !_TAG_PROGRAM_URL	http://ctags.sourceforge.net	/official site/
 !_TAG_PROGRAM_VERSION	5.8	//
 ABCMeta	proactive/priority/prioritized.py	/^from abc import ABCMeta, abstractmethod$/;"	kind:namespace	line:1
+BackgroundScheduler	proactive/priority/priorityworker.py	/^from apscheduler.schedulers.background import BackgroundScheduler$/;"	kind:namespace	line:1
 BusinessDB	proactive/dbs/__init__.py	/^from .businessdb import BusinessDB$/;"	kind:namespace	line:1
 BusinessDB	proactive/dbs/businessdb.py	/^class BusinessDB(Database):$/;"	kind:class	line:5
 BusinessDB	run.py	/^from proactive.dbs import BusinessDB, OrderDB$/;"	kind:namespace	line:3
@@ -94,16 +95,15 @@ __init__.py	proactive/priority/__init__.py	1;"	kind:file	line:1
 __init__.py	proactive/travel/__init__.py	1;"	kind:file	line:1
 __init__.py	proactive/utils/__init__.py	1;"	kind:file	line:1
 __init__.py	tests/__init__.py	1;"	kind:file	line:1
-__init__.py	web/__init__.py	1;"	kind:file	line:1
 __lt__	proactive/priority/prioritized.py	/^  def __lt__(self, other):$/;"	kind:member	line:11
 __lt__	proactive/priority/taskunit.py	/^  def __lt__(self, other):$/;"	kind:member	line:27
 __metaclass__	proactive/priority/prioritized.py	/^  __metaclass__ = ABCMeta$/;"	kind:variable	line:4
-__monitor	proactive/priority/priorityworker.py	/^  def __monitor(self):$/;"	kind:member	line:38
+__monitor	proactive/priority/priorityworker.py	/^  def __monitor(self):$/;"	kind:member	line:40
 __readConfigFile	proactive/config/configuration.py	/^  def __readConfigFile(self):$/;"	kind:member	line:170
-__readUnprocessedOrders	proactive/priority/priorityworker.py	/^  def __readUnprocessedOrders(self):$/;"	kind:member	line:29
+__readUnprocessedOrders	proactive/priority/priorityworker.py	/^  def __readUnprocessedOrders(self):$/;"	kind:member	line:30
 __writeConfigFile	proactive/config/configuration.py	/^  def __writeConfigFile(self, contents):$/;"	kind:member	line:178
-_calculateCustomerDistance	proactive/priority/priorityworker.py	/^  def _calculateCustomerDistance(self, order):$/;"	kind:member	line:80
-_customerArrivalTime	proactive/priority/priorityworker.py	/^  def _customerArrivalTime(self, customerCoordinates):$/;"	kind:member	line:71
+_calculateCustomerDistance	proactive/priority/priorityworker.py	/^  def _calculateCustomerDistance(self, order):$/;"	kind:member	line:84
+_customerArrivalTime	proactive/priority/priorityworker.py	/^  def _customerArrivalTime(self, customerCoordinates):$/;"	kind:member	line:75
 abstractmethod	proactive/priority/prioritized.py	/^from abc import ABCMeta, abstractmethod$/;"	kind:namespace	line:1
 add	proactive/priority/taskunitpriorityqueue.py	/^  def add(self, obj):$/;"	kind:member	line:15
 addGoogleMapsKey	proactive/config/configuration.py	/^  def addGoogleMapsKey(self, key):$/;"	kind:member	line:112
@@ -115,7 +115,7 @@ argparse	proactive/config/run.py	/^import argparse$/;"	kind:namespace	line:1
 asDict	proactive/priority/prioritized.py	/^  def asDict(self):$/;"	kind:member	line:15
 asDict	proactive/priority/taskunit.py	/^  def asDict(self):$/;"	kind:member	line:33
 asDict	proactive/priority/taskunitpriorityqueue.py	/^  def asDict(self):$/;"	kind:member	line:37
-beginWorker	server.py	/^def beginWorker():$/;"	kind:function	line:27
+beginWorker	server.py	/^def beginWorker():$/;"	kind:function	line:23
 business	run.py	/^  business = businessDBConn.read(businessID)$/;"	kind:variable	line:20
 businessDBConn	run.py	/^  businessDBConn = BusinessDB($/;"	kind:variable	line:11
 businessID	run.py	/^  businessID = "58876b6905733be97fb526ad"$/;"	kind:variable	line:8
@@ -132,6 +132,7 @@ coord	proactive/travel/__init__.py	/^from . import coord, metric$/;"	kind:namesp
 coord.py	proactive/travel/coord.py	1;"	kind:file	line:1
 coordinate	proactive/travel/coord.py	/^def coordinate(lat, lng):$/;"	kind:function	line:1
 count	proactive/priority/taskunitpriorityqueue.py	/^  def count(self):$/;"	kind:member	line:30
+current_thread	proactive/priority/priorityworker.py	/^    from threading import current_thread$/;"	kind:namespace	line:45
 database.py	proactive/dbs/database.py	1;"	kind:file	line:1
 dateparser	proactive/priority/taskunit.py	/^from dateutil import parser as dateparser$/;"	kind:namespace	line:2
 datetime	proactive/priority/release.py	/^from datetime import datetime, timedelta$/;"	kind:namespace	line:1
@@ -148,7 +149,6 @@ gmapsresponse.py	proactive/travel/gmapsresponse.py	1;"	kind:file	line:1
 googlemaps	proactive/travel/travel.py	/^import googlemaps$/;"	kind:namespace	line:2
 handleArgs	proactive/config/run.py	/^def handleArgs(parser):$/;"	kind:function	line:111
 heap	proactive/priority/taskunitpriorityqueue.py	/^import heapq as heap$/;"	kind:namespace	line:1
-hello	server.py	/^def hello():$/;"	kind:function	line:23
 json	proactive/config/configuration.py	/^import json$/;"	kind:namespace	line:2
 json	proactive/config/run.py	/^    import json$/;"	kind:namespace	line:106
 loader	tests/test_run.py	/^  loader = TestLoader()$/;"	kind:variable	line:6
@@ -161,7 +161,7 @@ mongo	run.py	/^  mongo = config.read([config.DATABASES])[0][0]$/;"	kind:variable
 mongo	server.py	/^mongo = config.read([config.DATABASES])[0][0]$/;"	kind:variable	line:8
 mongoutil	proactive/dbs/database.py	/^from . import mongoutil$/;"	kind:namespace	line:2
 mongoutil.py	proactive/dbs/mongoutil.py	1;"	kind:file	line:1
-new	proactive/priority/priorityservice.py	/^  def new(self, business, refresh=5000):$/;"	kind:member	line:9
+newWorker	proactive/priority/priorityservice.py	/^  def newWorker(self, business, workerID, refresh=5000):$/;"	kind:member	line:9
 order	proactive/priority/__init__.py	/^from . import order, taskunitpriorityqueue, priorityworker, priorityservice$/;"	kind:namespace	line:1
 order.py	proactive/priority/order.py	1;"	kind:file	line:1
 orderDBConn	run.py	/^  orderDBConn = OrderDB($/;"	kind:variable	line:23
@@ -176,6 +176,7 @@ prioritized.py	proactive/priority/prioritized.py	1;"	kind:file	line:1
 priority	proactive/__init__.py	/^import proactive.priority$/;"	kind:namespace	line:3
 priority	proactive/priority/prioritized.py	/^  def priority(self):$/;"	kind:member	line:7
 priority	proactive/priority/taskunit.py	/^  def priority(self):$/;"	kind:member	line:30
+priority	server.py	/^def priority():$/;"	kind:function	line:55
 priority	tests/test_release.py	/^import proactive.priority.release as release$/;"	kind:namespace	line:2
 priorityService	run.py	/^  priorityService = PriorityService(orderDBConn)$/;"	kind:variable	line:32
 priorityService	server.py	/^priorityService = PriorityService(orderDBConn)$/;"	kind:variable	line:18
@@ -203,6 +204,8 @@ run.py	run.py	1;"	kind:file	line:1
 runner	tests/test_run.py	/^  runner = TextTestRunner(verbosity=2)$/;"	kind:variable	line:11
 server.py	server.py	1;"	kind:file	line:1
 setUp	tests/test_taskunitpriorityqueue.py	/^  def setUp(self):$/;"	kind:member	line:6
+stop	proactive/priority/priorityworker.py	/^  def stop(self):$/;"	kind:member	line:37
+stopWorker	proactive/priority/priorityservice.py	/^  def stopWorker(self, workerID):$/;"	kind:member	line:23
 suite	tests/test_run.py	/^  suite = TestSuite([$/;"	kind:variable	line:7
 taskunit.py	proactive/priority/taskunit.py	1;"	kind:file	line:1
 taskunitpriorityqueue	proactive/priority/__init__.py	/^from . import order, taskunitpriorityqueue, priorityworker, priorityservice$/;"	kind:namespace	line:1
@@ -219,7 +222,6 @@ test_releaseAt	tests/test_release.py	/^  def test_releaseAt(self):$/;"	kind:memb
 test_releaseAtWithProcessingLargerThanDeadline	tests/test_release.py	/^  def test_releaseAtWithProcessingLargerThanDeadline(self):$/;"	kind:member	line:26
 test_run.py	tests/test_run.py	1;"	kind:file	line:1
 test_taskunitpriorityqueue.py	tests/test_taskunitpriorityqueue.py	1;"	kind:file	line:1
-time	proactive/priority/priorityworker.py	/^import time$/;"	kind:namespace	line:1
 timedelta	proactive/priority/release.py	/^from datetime import datetime, timedelta$/;"	kind:namespace	line:1
 timedelta	proactive/utils/timeutil.py	/^from datetime import timedelta$/;"	kind:namespace	line:1
 timedelta	tests/test_release.py	/^from datetime import datetime, timedelta$/;"	kind:namespace	line:1

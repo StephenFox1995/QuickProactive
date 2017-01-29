@@ -2,6 +2,7 @@ from flask import Flask, request, Response
 from proactive.config import Configuration
 from proactive.priority.priorityservice import PriorityService
 from proactive.dbs import BusinessDB, OrderDB
+import json
 
 app = Flask(__name__)
 config = Configuration()
@@ -51,5 +52,18 @@ def beginWorker():
     return Response(response="Success")
   return Response(response="Failed")
 
+@app.route("/priority")
+def priority():
+  workerID = request.args["id"]
+  try:
+    queueState = json.dumps(priorityService.workerQueueState(workerID=workerID))
+    return Response(response=queueState)
+  except KeyError:
+    return Response(response="Failed!")
+
+
+
 if __name__ == "__main__":
   app.run(host='0.0.0.0', port=6566)
+
+
