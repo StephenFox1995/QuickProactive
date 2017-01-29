@@ -22,10 +22,45 @@ class TestTaskUnit(TestCase):
       taskID=self.taskID,
       item=item
     )
-    self.assertEquals(taskUnit.createdAt, self.createdAt)
-    self.assertEquals(taskUnit.deadline, self.deadline)
-    self.assertEquals(taskUnit.profit, self.profit)
-    self.assertEquals(taskUnit.processing, self.processing)
-    self.assertEquals(taskUnit.taskID, self.taskID)
+    self.assertEqual(taskUnit.createdAt, self.createdAt)
+    self.assertEqual(taskUnit.deadline, self.deadline)
+    self.assertEqual(taskUnit.profit, self.profit)
+    self.assertEqual(taskUnit.processing, self.processing)
+    self.assertEqual(taskUnit.taskID, self.taskID)
     self.assertEqual(taskUnit.item, item)
 
+
+  def test_asDict(self):
+    taskUnit = TaskUnit(
+      createdAt=self.createdAt,
+      deadline=self.deadline,
+      profit=self.profit,
+      processing=self.processing,
+      taskID=self.taskID
+    )
+    expectedResult = {
+      "id": self.taskID,
+      "releaseISO": "",
+      "deadlineISO": "",
+      "deadline": self.deadline,
+      "profit": self.profit,
+      "processing": self.processing
+    }
+    result = taskUnit.asDict()
+    expectedResult["releaseISO"] = result["releaseISO"] # this is ok
+    expectedResult["deadlineISO"] = result["deadlineISO"] # this is ok
+    self.assertEqual(taskUnit.asDict(), expectedResult)
+
+  def test_priority(self):
+    taskUnit = TaskUnit(
+      createdAt=self.createdAt,
+      deadline=self.deadline,
+      profit=self.profit,
+      processing=self.processing,
+      taskID=self.taskID
+    )
+    from proactive.utils import timeutil
+    # As expected priority is just the deadline of the task, calculate it.
+    deadline = timeutil.addSeconds(self.createdAt, self.deadline)
+    expectedPriority = deadline
+    self.assertEqual(taskUnit.priority(), expectedPriority)

@@ -22,10 +22,9 @@ class TestOrder(TestCase):
       cost=self.cost,
       createdAt=self.createdAt
     )
-    self.assertEquals(order.orderID, self.orderID)
-    self.assertEquals(order.status, self.status)
-    self.assertEquals(order.processing, self.processing)
-    self.assertEquals(order.customerCoordinates, self.customerCoordinates)
-    self.assertEquals(order.cost, self.cost)
-    self.assertEquals(order.createdAt, self.createdAt)
-
+    self.assertEqual(order.orderID, self.orderID)
+    self.assertEqual(order.status, self.status)
+    self.assertEqual(order.processing, self.processing)
+    self.assertEqual(order.customerCoordinates, self.customerCoordinates)
+    self.assertEqual(order.cost, self.cost)
+    self.assertEqual(order.createdAt, self.createdAt)
