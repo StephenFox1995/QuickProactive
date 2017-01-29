@@ -52,3 +52,4 @@ class TestTravel(TestCase):
       measure="value"
     )
     self.assertEqual(arrivalTime, gmapsResponse["rows"][0]["elements"][0]["duration"]["value"])
+
