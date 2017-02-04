@@ -1,5 +1,4 @@
 from unittest import TestCase
-from intervaltree import IntervalTree
 from proactive.priority.taskmanager import TaskManager
 
 class TestTaskManager(TestCase):
