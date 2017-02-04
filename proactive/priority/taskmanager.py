@@ -18,7 +18,12 @@ class ConflictSet(object):
         conflicts.append(conflict)
     return conflicts
 
-
+  def flatten(self):
+    intervals = []
+    for x in self._conflicts:
+      for y in x:
+        intervals.append(y)
+    return intervals
 
 class TaskManager(object):
 
@@ -57,7 +62,6 @@ class TaskManager(object):
       This method finds all the conflicts of the current task set
       held by this class.
     """
-
     begin = self.__intervalTree.begin()
     end = self.__intervalTree.end()
     conflicts = []
@@ -70,12 +74,7 @@ class TaskManager(object):
     return ConflictSet(conflicts)
 
   def findNonConflicts(self):
-    consflicts = self.findConflicts()
+    conflicts = self.findConflicts().flatten()
+    return self.__intervalTree.difference(conflicts)
 
-  def __flattenIntervalSet(self, intervalSet):
-    intervals = []
-    for x in intervalSet:
-      for y in x:
-        intervals.append(y)
-    return intervals
 
