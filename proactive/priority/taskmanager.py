@@ -69,6 +69,8 @@ class TaskManager(object):
           conflicts.append(_intervals)
     return ConflictSet(conflicts)
 
+  def findNonConflicts(self):
+    consflicts = self.findConflicts()
 
   def __flattenIntervalSet(self, intervalSet):
     intervals = []

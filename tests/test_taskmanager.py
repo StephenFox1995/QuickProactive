@@ -15,5 +15,3 @@ class TestTaskManager(TestCase):
     taskManager.addTasks(tasks)
     conflicts = taskManager.findConflicts().allGreaterThan(2)
     self.assertEqual(len(conflicts), 1)
-
-
