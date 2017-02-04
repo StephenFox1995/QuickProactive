@@ -5,6 +5,7 @@ from .test_order import TestOrder
 from .test_release import TestRelease
 from .test_timeutil import TestTimeutil
 from .test_travel import TestTravel
+from .test_taskmanager import TestTaskManager
 
 if __name__ == "__main__":
   loader = TestLoader()
@@ -14,7 +15,8 @@ if __name__ == "__main__":
     loader.loadTestsFromTestCase(TestOrder),
     loader.loadTestsFromTestCase(TestTaskUnit),
     loader.loadTestsFromTestCase(TestTimeutil),
-    loader.loadTestsFromTestCase(TestTravel)
+    loader.loadTestsFromTestCase(TestTravel),
+    loader.loadTestsFromTestCase(TestTaskManager)
   ])
   runner = TextTestRunner(verbosity=2)
   runner.run(suite)

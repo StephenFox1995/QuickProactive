@@ -1,50 +1,40 @@
 from intervaltree import IntervalTree
 from datetime import datetime
+import itertools
 
+def findConflicts(tree, threshold):
+  begin = tree.begin()
+  end = tree.end()
+  conflicts = []
+  # Get all tasks that are currently in the tree, which
+  # do not have worker assigned to them.
+  intervals = sorted(tree[begin:end])
+  intervalsOverThreshold = []
+  for interval in intervals:
+    intervalConflicts = tree[interval.begin:interval.end] # find all conflicts with this task.
+    if intervalConflicts > 1:
+      if intervalConflicts not in conflicts:
+        conflicts.append(intervalConflicts)
+    else:
+      if intervalConflicts not in intervalsOverThreshold:
+        intervalsOverThreshold.append(intervalConflicts)
+  return (conflicts, intervalsOverThreshold)
 
-def tasksInRange(tasks, start, end):
-  taskRange = []
-  for task in tasks:
-    if task["release"] >= start and task["deadline"] <= end:
-      taskRange.append(task)
-  return taskRange
+def nonConflicts(tree, conflicts):
+  return IntervalTree(conflicts) - tree
 
-def assignworkers(tasks, m, start, end):
-  starttime = 09.00
-  endtime = 18.00
-  tasks = tasksInRange(tasks, starttime, endtime)
+def makeTree(tasks):
   tree = IntervalTree()
-
   for task in tasks:
     tree.addi(begin=task["release"], end=task["deadline"], data=task["id"])
+  return tree
 
-  start = tree.begin()
-  end = tree.end()
-  intervals = sorted(tree[start:end])
-  conflicts = []
-
-  for x in intervals:
-    t = tree[x.begin:x.end]
-    if t > 1:
-      if t not in conflicts:
-        conflicts.append(t)
-  for x in conflicts:
-    print(x)
-
-  # for interval in tree:
-  #   if tree.overlaps(interval.begin, interval.end):
-  #     print(tree.search(interval.begin, interval.end))
-  #   print(tree.overlaps(interval.begin, interval.end))
-  # Query tree to find all conflicts that occur until closing time.
-  # print(tree.overlaps(starttime, endtime))
-
-  # task = tasks[0] # take the first task.
-  # for x in range(1, len(tasks)) # find any tasks that conflict with this task up to m
-  #   conflicts = tree[tasks[0]["release"]: tasks[0]["deadline"]
-  #   if conflicts >= m:
-
-
-
+def flatten(s):
+  items = []
+  for x in s:
+    for y in x:
+      items.append(y)
+  return items
 
 
 
@@ -66,7 +56,19 @@ if __name__ == "__main__":
     {"id": "t3", "release": 11.30, "deadline": 12.00, "status": "unassigned"},
     {"id": "t4", "release": 11.35, "deadline": 12.00, "status": "unassigned"},
     {"id": "t5", "release": 11.50, "deadline": 12.30, "status": "unassigned"},
+    {"id": "t6", "release": 14.50, "deadline": 15.30, "status": "unassigned"},
   ]
-  assignworkers(tasks, 2, 9.34, 10)
+  tree = makeTree(tasks)
+  conflicts = findConflicts(tree, 1)
+  conflicts = flatten(conflicts[0])
 
-
+  # flatten intervals array
+  # x = list(itertools.chain.from_iterable(conflictingIntervals))
+  # for _ in x:
+  #   print(_)
+  nonConflictingTasks = nonConflicts(tree, conflicts)
+  print(nonConflictingTasks)
+  # for _ in conflictingIntervals[0]:
+  #   print(_)
+  # for _ in conflictingIntervals[1]:
+  #   print(_)
