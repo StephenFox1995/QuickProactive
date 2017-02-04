@@ -9,7 +9,24 @@ class TaskUnit(Priority):
       A task unit is a schedulable piece of work that needs to be completed
       before a deadline. However, as the scheduling is not computer scheduling
       and merely advice to humans when specific tasks should be released/started
-      and completed.
+      and completed. (Humans can do multiple tasks)
+
+      w1 = 100
+      r1 = 14.00
+      c1 = 13:00
+
+      w2 = 3
+      r2 = 14:05
+      c2 = 13:00
+
+      w3 = 40
+      r3 = 14:10
+      c3 = 14:00
+      100/14 + 13
+      weight / (release) [createdAt/(sequence)]
+      deadline / release + profit
+      1. fifo
+      2. Priority/adaptive queue
 
       A TaskUnit is composed of the following properties:
         t_unit = (c, r,d,p,w)
