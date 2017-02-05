@@ -18,6 +18,14 @@ class ConflictSet(object):
         conflicts.append(conflict)
     return conflicts
 
+  def max(self):
+    maxConflict = None
+    maxSize = 0
+    for conflict in self._conflicts:
+      if len(conflict) > maxSize:
+        maxConflict = conflict
+    return maxConflict
+
   def flatten(self):
     intervals = []
     for x in self._conflicts:
@@ -31,8 +39,12 @@ class TaskManager(object):
   def __init__(self, period):
     self.__tasks = []
     self.__intervalTree = IntervalTree()
+    self.__workers = []
     self.__start = period[0]
     self.__end = period[1]
+
+  def addWorker(self, worker):
+    self.__workers.append(worker)
 
   def addTask(self, task):
     if task.deadline > self.__end:
@@ -80,4 +92,22 @@ class TaskManager(object):
     conflicts = self.findConflicts().flatten()
     return self.__intervalTree.difference(conflicts).items()
 
+  def highestNumberOfWorkersNeeded(self, multitask=1):
+    """
+      Calculates the highest number of employees needed
+      to service the tasks set.
+      @param multitask:(int) The maximum amount of tasks a single
+        worker can complete at any given time simultaneously.
+    """
+    conflict = self.findConflicts().max()
+    return self.workersNeeded(len(conflict), multitask)
 
+  def workersNeeded(self, k, m):
+    """
+      Calculates the number of employees needed to deal with a conflict.
+      @param k:() The number of conflicts
+      @param m:() The highest number of tasks employees can service simultaneously.
+    """
+    # formula: k/m
+    from math import ceil
+    return ceil(float(k)/float(m))
