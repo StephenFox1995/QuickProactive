@@ -25,31 +25,34 @@ class ConflictSet(object):
         intervals.append(y)
     return intervals
 
-class TaskManager(object):
 
+
+class TaskManager(object):
   def __init__(self, period):
     self.__tasks = []
     self.__intervalTree = IntervalTree()
     self.__start = period[0]
     self.__end = period[1]
 
-
   def addTask(self, task):
+    if task.deadline > self.__end:
+      raise Exception(
+        "Cannot process this task as it's deadline is %s is after %s"
+        % (task.deadline, self.__end)
+      )
     self.__tasks.append(task)
     self.__addTaskToTree(task)
-
 
   def addTasks(self, tasks):
     for task in tasks:
       self.__tasks.append(task)
       self.__addTaskToTree(task)
 
-
   def __addTaskToTree(self, task):
     self.__intervalTree.addi(
-      begin=task["release"],
-      end=task["deadline"],
-      data=task["id"]
+      begin=task.release,
+      end=task.deadline,
+      data=task.taskID
     )
 
   def findConflicts(self):
@@ -75,6 +78,6 @@ class TaskManager(object):
 
   def findNonConflicts(self):
     conflicts = self.findConflicts().flatten()
-    return self.__intervalTree.difference(conflicts)
+    return self.__intervalTree.difference(conflicts).items()
 
 

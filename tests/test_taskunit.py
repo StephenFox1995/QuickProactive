@@ -14,21 +14,21 @@ class TestTaskUnit(TestCase):
 
 
   def test_init(self):
-    item = [1, 2, 3, 4]
+    data = [1, 2, 3, 4]
     taskUnit = TaskUnit(
       createdAt=self.createdAt,
       deadline=self.deadline,
       profit=self.profit,
       processing=self.processing,
       taskID=self.taskID,
-      item=item
+      data=data
     )
     self.assertEqual(taskUnit.createdAt, self.createdAt)
     self.assertEqual(taskUnit.deadline, self.deadline)
     self.assertEqual(taskUnit.profit, self.profit)
     self.assertEqual(taskUnit.processing, self.processing)
     self.assertEqual(taskUnit.taskID, self.taskID)
-    self.assertEqual(taskUnit.item, item)
+    self.assertEqual(taskUnit.data, data)
 
 
   def test_asDict(self):
