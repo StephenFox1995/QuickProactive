@@ -23,7 +23,7 @@ class TestTaskManager(TestCase):
         createdAt=self.tHour(0, 0),
         deadline=self.tHour(11, 00),
         profit=0,
-        processing=4800,
+        processing=0,
         release=self.tHour(9, 40),
         taskID="t2"
       ),
@@ -31,7 +31,7 @@ class TestTaskManager(TestCase):
         createdAt=self.tHour(0, 0),
         deadline=self.tHour(12, 00),
         profit=0,
-        processing=5400,
+        processing=0,
         release=self.tHour(11, 30),
         taskID="t3"
       ),
@@ -39,7 +39,7 @@ class TestTaskManager(TestCase):
         createdAt=self.tHour(0, 0),
         deadline=self.tHour(12, 00),
         profit=0,
-        processing=5100,
+        processing=0,
         release=self.tHour(11, 35),
         taskID="t4"
       ),
@@ -48,14 +48,14 @@ class TestTaskManager(TestCase):
         deadline=self.tHour(12, 30),
         profit=0,
         release=self.tHour(11, 50),
-        processing=2400,
+        processing=0,
         taskID="t5"
       ),
       TaskUnit(
         createdAt=self.tHour(0, 0),
         deadline=self.tHour(15, 30),
         profit=0,
-        processing=2400,
+        processing=0,
         release=self.tHour(14, 50),
         taskID="t6"
       )
@@ -67,4 +67,65 @@ class TestTaskManager(TestCase):
 
 
   def test_numberOfNonConflicts(self):
-    pass
+    tasks = [
+      TaskUnit(
+        createdAt=self.tHour(0, 0),
+        deadline=self.tHour(10, 00),
+        profit=0,
+        processing=0,
+        release=self.tHour(9, 30),
+        taskID="t1"
+      ),
+      TaskUnit(
+        createdAt=self.tHour(0, 0),
+        deadline=self.tHour(11, 00),
+        profit=0,
+        processing=0,
+        release=self.tHour(9, 40),
+        taskID="t2"
+      ),
+      TaskUnit(
+        createdAt=self.tHour(0, 0),
+        deadline=self.tHour(12, 00),
+        profit=0,
+        processing=0,
+        release=self.tHour(11, 30),
+        taskID="t3"
+      ),
+      TaskUnit(
+        createdAt=self.tHour(0, 0),
+        deadline=self.tHour(12, 00),
+        profit=0,
+        processing=0,
+        release=self.tHour(11, 35),
+        taskID="t4"
+      ),
+      TaskUnit(
+        createdAt=self.tHour(0, 0),
+        deadline=self.tHour(12, 30),
+        profit=0,
+        release=self.tHour(11, 50),
+        processing=0,
+        taskID="t5"
+      ),
+      TaskUnit(
+        createdAt=self.tHour(0, 0),
+        deadline=self.tHour(15, 30),
+        profit=0,
+        processing=0,
+        release=self.tHour(14, 50),
+        taskID="t6"
+      ),
+      TaskUnit(
+        createdAt=self.tHour(0, 0),
+        deadline=self.tHour(16, 30),
+        profit=0,
+        processing=0,
+        release=self.tHour(16, 25),
+        taskID="t6"
+      )
+    ]
+    taskManager = TaskManager(period=(8, 9))
+    taskManager.addTasks(tasks)
+    nonConflicts = taskManager.findNonConflicts()
+    self.assertEqual(len(nonConflicts), 2)

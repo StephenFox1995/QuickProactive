@@ -67,7 +67,7 @@ class TestTaskUnit(TestCase):
       processing=self.processing,
       taskID=self.taskID
     )
-    # As expected priority is just the deadline of the task, calculate it.
-    deadline = timeutil.addSeconds(self.createdAt, self.deadline)
-    expectedPriority = deadline
+    # As expected priority is just the release of the task, calculate it.
+    expectedRelease = release.releaseAt(self.deadline, self.processing, self.createdAt)
+    expectedPriority = expectedRelease
     self.assertEqual(taskUnit.priority(), expectedPriority)

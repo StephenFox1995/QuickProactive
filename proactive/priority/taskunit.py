@@ -94,7 +94,7 @@ class TaskUnit(Priority):
     return self.priority() < other.priority()
 
   def priority(self):
-    return dateparser.parse(self._deadlineISO)
+    return self.release
 
   def asDict(self):
     return {
