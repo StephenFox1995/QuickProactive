@@ -11,6 +11,12 @@ class TestTaskUnit(TestCase):
     self.deadline = 500
     self.profit = 2.56
     self.processing = 100
+    self.globalTask = TaskUnit(
+      createdAt=self.createdAt,
+      deadline=self.deadline,
+      profit=self.profit,
+      processing=self.processing
+    )
 
 
   def test_init(self):
@@ -23,12 +29,14 @@ class TestTaskUnit(TestCase):
       taskID=self.taskID,
       data=data
     )
+    expectedRelease = release.releaseAt(self.deadline, self.processing, self.createdAt)
     self.assertEqual(taskUnit.createdAt, self.createdAt)
     self.assertEqual(taskUnit.deadline, self.deadline)
     self.assertEqual(taskUnit.profit, self.profit)
     self.assertEqual(taskUnit.processing, self.processing)
     self.assertEqual(taskUnit.taskID, self.taskID)
     self.assertEqual(taskUnit.data, data)
+    self.assertEqual(taskUnit.release, expectedRelease)
 
 
   def test_asDict(self):
