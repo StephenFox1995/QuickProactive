@@ -1,0 +1,2 @@
+class LateDeadlineException(Exception):
+  pass

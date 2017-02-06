@@ -1,7 +1,7 @@
 from datetime import datetime, timedelta
-import proactive.priority.release as release
 from unittest import TestCase
-
+import proactive.priority.release as release
+from proactive.utils.timeutil import addSeconds
 
 
 class TestRelease(TestCase):
@@ -15,7 +15,8 @@ class TestRelease(TestCase):
       createdAt + timedelta(seconds=deadline) -
       timedelta(seconds=processing)
     ).isoformat()
-    releaseAtTime = release.releaseAt(deadline, processing, created=createdAt).isoformat()
+    deadline = addSeconds(createdAt, deadline)
+    releaseAtTime = release.releaseAt(deadline, processing).isoformat()
 
     # Compare them as string, with no milliseconds.
     expectedReleaseAtTime = expectedReleaseAtTime[:-7]
@@ -32,7 +33,8 @@ class TestRelease(TestCase):
       createdAt + timedelta(seconds=deadline) -
       timedelta(seconds=processing)
     ).isoformat()
-    releaseAtTime = release.releaseAt(deadline, processing, created=createdAt).isoformat()
+    deadline = addSeconds(createdAt, deadline)
+    releaseAtTime = release.releaseAt(deadline, processing).isoformat()
 
     # Compare them as string, with no milliseconds.
     expectedReleaseAtTime = expectedReleaseAtTime[:-7]

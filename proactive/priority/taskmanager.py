@@ -1,4 +1,6 @@
+from datetime import datetime
 from intervaltree import IntervalTree
+from .exceptions import LateDeadlineException
 
 class ConflictSet(object):
   def __init__(self, conflicts):
@@ -24,6 +26,7 @@ class ConflictSet(object):
     for conflict in self._conflicts:
       if len(conflict) > maxSize:
         maxConflict = conflict
+        maxSize = len(conflict)
     return maxConflict
 
   def flatten(self):
@@ -40,15 +43,24 @@ class TaskManager(object):
     self.__tasks = []
     self.__intervalTree = IntervalTree()
     self.__workers = []
-    self.__start = period[0]
-    self.__end = period[1]
+    if isinstance(period[0], datetime) and isinstance(period[1], datetime):
+      self.__start = period[0]
+      self.__end = period[1]
+    else:
+      raise TypeError(
+        "period[0] and period[1] should be datetime instances."
+      )
+
+  @property
+  def tasks(self):
+    return self.__tasks
 
   def addWorker(self, worker):
     self.__workers.append(worker)
 
   def addTask(self, task):
     if task.deadline > self.__end:
-      raise Exception(
+      raise LateDeadlineException(
         "Cannot process this task as it's deadline is %s is after %s"
         % (task.deadline, self.__end)
       )
@@ -111,3 +123,4 @@ class TaskManager(object):
     # formula: k/m
     from math import ceil
     return ceil(float(k)/float(m))
+
