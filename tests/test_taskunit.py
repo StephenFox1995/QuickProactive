@@ -30,9 +30,10 @@ class TestTaskUnit(TestCase):
       taskID=self.taskID,
       data=data
     )
-    expectedRelease = release.releaseAt(self.deadline, self.processing, self.createdAt)
+    expectedDeadline = timeutil.addSeconds(self.createdAt, self.deadline)
+    expectedRelease = release.releaseAt(expectedDeadline, self.processing)
     self.assertEqual(taskUnit.createdAt, self.createdAt)
-    self.assertEqual(taskUnit.deadline, self.deadline)
+    self.assertEqual(taskUnit.deadline, expectedDeadline)
     self.assertEqual(taskUnit.profit, self.profit)
     self.assertEqual(taskUnit.processing, self.processing)
     self.assertEqual(taskUnit.taskID, self.taskID)
@@ -49,10 +50,10 @@ class TestTaskUnit(TestCase):
       taskID=self.taskID
     )
     # Calculate the correct ISO for task.
+    deadline = timeutil.addSeconds(self.createdAt, self.deadline)
     expectedReleaseISO = release.releaseAt(
-      self.deadline,
-      self.processing,
-      self.createdAt
+      deadline,
+      self.processing
     ).isoformat()
     expectedDeadlineISO = timeutil.addSeconds(self.createdAt, self.deadline).isoformat()
     expectedCreatedAtISO = self.createdAt.isoformat()
@@ -62,7 +63,7 @@ class TestTaskUnit(TestCase):
       "releaseISO": expectedReleaseISO,
       "deadlineISO": expectedDeadlineISO,
       "createdAtISO": expectedCreatedAtISO,
-      "deadline": self.deadline,
+      "deadline": deadline,
       "profit": self.profit,
       "processing": self.processing,
     }
@@ -77,7 +78,7 @@ class TestTaskUnit(TestCase):
       taskID=self.taskID
     )
     # As expected priority is just the release of the task, calculate it.
-    expectedRelease = release.releaseAt(self.deadline, self.processing, self.createdAt)
+    expectedRelease = release.releaseAt(taskUnit.deadline, self.processing)
     expectedPriority = expectedRelease
     self.assertEqual(taskUnit.priority(), expectedPriority)
 

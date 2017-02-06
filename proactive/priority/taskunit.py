@@ -33,28 +33,38 @@ class TaskUnit(Priority):
     self._createdAt = createdAt
     self._createdAtISO = createdAt.isoformat()
     self._processing = processing
-    self._deadline = deadline
-
-    if not isinstance(self._deadline, datetime): #check deadline type
-      self._deadlineISO = timeutil.addSeconds(createdAt, self._deadline).isoformat()
-    else:
-      self._deadlineISO = self._deadline.isoformat()
-    if release is None:
-      from . import release
-      self._release = release.releaseAt(self.deadline, self._processing, self.createdAt)
-    else:
-      # as release is given, make sure its not after deadline.
-      if release > self._deadline:
-        raise ValueError(
-          "Release time is later than deadline, this is not allowed."
-        )
-      else:
-        self._release = release
-
-    self._releaseISO = self._release.isoformat()
     self._profit = profit
     self._taskID = taskID
     self._data = data
+
+    if isinstance(deadline, datetime): #check deadline type
+      self._deadline = deadline
+      self._deadlineISO = self._deadline.isoformat()
+    elif isinstance(deadline, int):
+      self._deadline = timeutil.addSeconds(createdAt, deadline)
+      self._deadlineISO = self._deadline.isoformat()
+    else:
+      raise TypeError(
+        "Deadline cannot be type %s" % type(deadline)
+      )
+
+    if isinstance(release, datetime): #check release type
+      self._release = release
+      self._releaseISO = self._release.isoformat()
+    elif not release:
+      from . import release
+      self._release = release.releaseAt(self._deadline, self._processing)
+      self._releaseISO = self._release.isoformat()
+    else:
+      raise TypeError(
+        "Release cannot be %s" % type(release)
+      )
+
+    if self._release > self._deadline:
+      raise ValueError(
+        "Release time is later than deadline, this is not allowed."
+      )
+
 
   @property
   def createdAt(self):
@@ -112,4 +122,3 @@ class TaskUnit(Priority):
       "processing": self._processing,
       "createdAtISO": self._createdAtISO
     }
-
