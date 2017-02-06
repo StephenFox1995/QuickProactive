@@ -43,7 +43,13 @@ class TaskUnit(Priority):
       from . import release
       self._release = release.releaseAt(self.deadline, self._processing, self.createdAt)
     else:
-      self._release = release
+      # as release is given, make sure its not after deadline.
+      if release > self._deadline:
+        raise ValueError(
+          "Release time is later than deadline, this is not allowed."
+        )
+      else:
+        self._release = release
 
     self._releaseISO = self._release.isoformat()
     self._profit = profit

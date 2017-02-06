@@ -3,6 +3,7 @@ from unittest import TestCase
 from proactive.priority.taskunit import TaskUnit
 from proactive.utils import timeutil
 from proactive.priority import release
+from .testutil import tHour
 
 class TestTaskUnit(TestCase):
   def setUp(self):
@@ -79,3 +80,14 @@ class TestTaskUnit(TestCase):
     expectedRelease = release.releaseAt(self.deadline, self.processing, self.createdAt)
     expectedPriority = expectedRelease
     self.assertEqual(taskUnit.priority(), expectedPriority)
+
+  def test_laterReleaseThanDeadline(self):
+    with self.assertRaises(ValueError):
+      TaskUnit(
+        createdAt=tHour(0, 0),
+        deadline=tHour(12, 30),
+        profit=self.profit,
+        processing=self.processing,
+        release=tHour(13, 30),
+        taskID=self.taskID
+      )
