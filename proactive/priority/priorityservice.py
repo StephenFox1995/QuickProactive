@@ -20,7 +20,6 @@ class PriorityService(object):
     """
     if processID in self.__processes:
       raise self.DuplicateProcessException("Process already exists with that id.")
-
     process = PriorityProcess(
       business=business,
       ordersDBConn=self._orderDBConn,
@@ -41,9 +40,10 @@ class PriorityService(object):
     worker = self.__processes[workerID] # throws KeyError if doesn't exist.
     return worker.currentQueueState()
 
-  def worker(self, workerID):
-    return self.__processes[workerID] # throws KeyError if doesn't exist.
+  @property
+  def process(self, processID):
+    return self.__processes[processID] # throws KeyError if doesn't exist.
 
-  def stopWorker(self, workerID):
-    self.__processes[workerID].stop()
-    del self.__processes[workerID]
+  def stopProcess(self, processID):
+    self.__processes[processID].stop()
+    del self.__processes[processID]

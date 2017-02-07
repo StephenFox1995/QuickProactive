@@ -26,7 +26,7 @@ def transormWorkerObject(obj):
     multitask=obj["multitask"]
   )
 
-@app.route("/beginService", methods=["POST"])
+@app.route("/beginservice", methods=["POST"])
 @cross_origin()
 def begin():
   """
@@ -90,15 +90,16 @@ def begin():
       })
 
 
-@app.route("/stopWorker", methods=["GET"])
+@app.route("/stopservice", methods=["GET"])
 @cross_origin()
 def stopWorker():
-  workerID = request.args["id"]
+  processID = request.args["id"]
   try:
-    priorityService.stopWorker(workerID)
+    priorityService.stopProcess(processID)
     return Response(response="Success!")
   except KeyError:
     return Response(response="Failed!")
+
 
 @app.route("/queue")
 @cross_origin()
