@@ -1,6 +1,7 @@
+from unittest import TestCase
 from proactive.priority.taskunitpriorityqueue import TaskUnitPriorityQueue
 from proactive.priority.taskunit import TaskUnit
-from unittest import TestCase
+
 
 class TestTaskUnitPriorityQueue(TestCase):
   def setUp(self):
@@ -33,7 +34,7 @@ class TestTaskUnitPriorityQueue(TestCase):
       )
     ]
     pQueue = TaskUnitPriorityQueue()
-    pQueue.add(items)
+    pQueue.push(items)
     expectedCount = 1
     self.assertEqual(pQueue.count(), expectedCount)
 
@@ -47,7 +48,7 @@ class TestTaskUnitPriorityQueue(TestCase):
       )
     ]
     pQueue = TaskUnitPriorityQueue(items)
-    pQueue.add(
+    pQueue.push(
       TaskUnit(
         createdAt=self._createdAt,
         deadline=100,
@@ -66,7 +67,7 @@ class TestTaskUnitPriorityQueue(TestCase):
       processing=self._processing
     )
     pQueue = TaskUnitPriorityQueue()
-    pQueue.add(item)
+    pQueue.push(item)
     expectedCount = 1
     self.assertEqual(pQueue.count(), expectedCount)
 

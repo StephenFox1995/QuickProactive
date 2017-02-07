@@ -1,36 +1,34 @@
-from .taskunitpriorityqueue import TaskUnitPriorityQueue
-from .priorityworker import PriorityWorker
-
-
+from .priorityprocess import PriorityProcess
+from .business import Business
 
 class PriorityService(object):
-  class DuplicateWorkerException(Exception):
+  class DuplicateProcessException(Exception):
     pass
 
   def __init__(self, orderDBConn):
     self._orderDBConn = orderDBConn
-    self.__workers = {}
+    self.__processes = {}
 
-  def newWorker(self, business, workerID, refresh=5000):
+  def newProcess(self, business, workers, processID, refresh=5000):
     """
-      Creates a new priorityworker.PriorityWorker to periodically
+      Creates a new priorityprocess.PriorityProcess to periodically
       calculate the priority of new orders.
-
       @param business:(object) Object that contains 'businessID'
+      @param workers:(list) A list of worker objects.
       @param refresh:(int)  The refresh rate in milliseconds, i.e
                             how often the service will run.
     """
-    if workerID in self.__workers:
-      raise self.DuplicateWorkerException("Worker already exists with that id.")
+    if processID in self.__processes:
+      raise self.DuplicateProcessException("Process already exists with that id.")
 
-    pWorker = PriorityWorker(
-      business,
-      self._orderDBConn,
-      TaskUnitPriorityQueue(),
+    process = PriorityProcess(
+      business=business,
+      ordersDBConn=self._orderDBConn,
+      workers=workers,
       refresh=refresh
     )
-    self.__workers[workerID] = pWorker
-    pWorker.run()
+    self.__processes[processID] = process
+    process.run()
 
   def workerQueueState(self, workerID):
     """
@@ -40,12 +38,12 @@ class PriorityService(object):
 
       @param workerID:(string) The id of the worker.
     """
-    worker = self.__workers[workerID] # throws KeyError if doesn't exist.
+    worker = self.__processes[workerID] # throws KeyError if doesn't exist.
     return worker.currentQueueState()
 
   def worker(self, workerID):
-    return self.__workers[workerID] # throws KeyError if doesn't exist.
+    return self.__processes[workerID] # throws KeyError if doesn't exist.
 
   def stopWorker(self, workerID):
-    self.__workers[workerID].stop()
-    del self.__workers[workerID]
+    self.__processes[workerID].stop()
+    del self.__processes[workerID]

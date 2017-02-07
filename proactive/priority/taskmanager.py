@@ -1,6 +1,9 @@
 from datetime import datetime
 from intervaltree import IntervalTree
-from .exceptions import LateDeadlineException
+from .exceptions import LateDeadlineException, ExceededWorkerMultitaskLimit
+from .taskunitpriorityqueue import TaskUnitPriorityQueue
+from .workerqueue import WorkerQueue
+from .worker import Worker
 
 class ConflictSet(object):
   def __init__(self, conflicts):
@@ -40,23 +43,22 @@ class ConflictSet(object):
 
 class TaskManager(object):
   def __init__(self, period):
-    self.__tasks = []
-    self.__intervalTree = IntervalTree()
-    self.__workers = []
+    self._tasksQ = TaskUnitPriorityQueue()
+    self._tasks = []
+    self._assignedTasks = []
+    self._intervalTree = IntervalTree()
+    self._workers = WorkerQueue()
     if isinstance(period[0], datetime) and isinstance(period[1], datetime):
       self.__start = period[0]
       self.__end = period[1]
     else:
       raise TypeError(
-        "period[0] and period[1] should be datetime instances."
+        "period[0] and period[1] should be type<'datetime'>."
       )
 
   @property
   def tasks(self):
-    return self.__tasks
-
-  def addWorker(self, worker):
-    self.__workers.append(worker)
+    return self._tasksQ.items()
 
   def addTask(self, task):
     if task.deadline > self.__end:
@@ -64,16 +66,17 @@ class TaskManager(object):
         "Cannot process this task as it's deadline is %s is after %s"
         % (task.deadline, self.__end)
       )
-    self.__tasks.append(task)
-    self.__addTaskToTree(task)
+    if task not in self._tasks:
+      self._tasks.append(task)
+      self._tasksQ.push(task)
+      self._addTaskToTree(task)
 
   def addTasks(self, tasks):
     for task in tasks:
-      self.__tasks.append(task)
-      self.__addTaskToTree(task)
+      self.addTask(task)
 
-  def __addTaskToTree(self, task):
-    self.__intervalTree.addi(
+  def _addTaskToTree(self, task):
+    self._intervalTree.addi(
       begin=task.release,
       end=task.deadline,
       data=task.taskID
@@ -89,12 +92,12 @@ class TaskManager(object):
       This method finds all the conflicts of the current task set
       held by this class.
     """
-    begin = self.__intervalTree.begin()
-    end = self.__intervalTree.end()
+    begin = self._intervalTree.begin()
+    end = self._intervalTree.end()
     conflicts = []
-    intervals = sorted(self.__intervalTree[begin:end])
+    intervals = sorted(self._intervalTree[begin:end])
     for interval in intervals:
-      _intervals = self.__intervalTree[interval.begin:interval.end]
+      _intervals = self._intervalTree[interval.begin:interval.end]
       if len(_intervals) > 1: # theres a conflict
         if _intervals not in conflicts:
           conflicts.append(_intervals)
@@ -102,7 +105,7 @@ class TaskManager(object):
 
   def findNonConflicts(self):
     conflicts = self.findConflicts().flatten()
-    return self.__intervalTree.difference(conflicts).items()
+    return self._intervalTree.difference(conflicts).items()
 
   def highestNumberOfWorkersNeeded(self, multitask=1):
     """
@@ -124,3 +127,25 @@ class TaskManager(object):
     from math import ceil
     return ceil(float(k)/float(m))
 
+  def addWorker(self, worker):
+    if isinstance(worker, Worker):
+      self._workers.put(worker)
+    else:
+      raise TypeError(
+        "Cannot add worker type %s, should be type<'Worker'>" % type(worker)
+      )
+
+  def addWorkers(self, workers):
+    for w in workers:
+      self.addWorker(w)
+
+  def assignTasksToWorkers(self):
+    for _ in range(0, self._workers.size()):
+      worker = self._workers.next()
+      task = self._tasksQ.pop()
+      self._intervalTree.removei(task.release, task.deadline, task.taskID)
+      self._assignedTasks.append(task)
+      try:
+        worker.assignTask(task)
+      except ExceededWorkerMultitaskLimit:
+        pass

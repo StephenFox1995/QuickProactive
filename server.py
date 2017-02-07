@@ -4,7 +4,7 @@ from flask_cors import CORS, cross_origin
 from proactive.config import Configuration
 from proactive.priority.priorityservice import PriorityService
 from proactive.dbs import BusinessDB, OrderDB
-
+from proactive.priority.worker import Worker
 
 app = Flask(__name__)
 config = Configuration()
@@ -20,29 +20,35 @@ orderDBConn = OrderDB(
 orderDBConn.connect()
 priorityService = PriorityService(orderDBConn)
 
+def transormWorkerObject(obj):
+  return Worker(
+    workerID=obj["id"],
+    multitask=obj["multitask"]
+  )
 
-
-@app.route("/beginWorker", methods=["POST"])
+@app.route("/beginService", methods=["POST"])
 @cross_origin()
-def beginWorker():
+def begin():
   """
-    Runs a new worker to monitor orders for a business.
+    Begins a new service to monitor orders for a business.
+    The request should contain a similar body as the following:
     {
-      "business": {
-        id: "test1234"
+	    "business": {
+		  "id": "58876b6905733be97fb526ad",
+        "workers":[
+          { "name":"Andrew Worker", "id": "W1234", "multitask": 2},
+          { "name": "Sinead Worker", "id": "W1234", "multitask": 2 }
+        ]
       },
-      refresh: 5000
+   	  "refresh": 5000
     }
   """
-  json_ = request.get_json()
-
-  if json_:
-    business = json_.get("business")
-    businessID = business["businessID"]
-    refresh = json_["refresh"]
-
-    # Setup connection to orders database.
-    # TODO: maybe get rid of this and make client send business details.
+  _json = request.get_json()
+  if _json:
+    business = _json.get("business")
+    businessID = business["id"]
+    refresh = _json["refresh"]
+    workers = business["workers"]
     businessDBConn = BusinessDB(
       mongo["uri"],
       mongo["port"],
@@ -54,19 +60,33 @@ def beginWorker():
     business = businessDBConn.read(businessID)
     businessDBConn.close()
 
+    workerInstances = []
+    for w in workers:
+      workerInstances.append(transormWorkerObject(w))
+
     try:
-      priorityService.newWorker(business=business, workerID=businessID, refresh=refresh)
+      priorityService.newProcess(
+        business=business,
+        processID=businessID,
+        workers=workerInstances,
+        refresh=refresh
+      )
       return jsonify({
         "status": "Success"
       })
-    except priorityService.DuplicateWorkerException:
+    except priorityService.DuplicateProcessException:
       return jsonify({
         "status": "Failed",
-        "reason": "Worker already exists for id: %s" % businessID
+        "reason": "Process already exists for id: %s" % businessID
       })
     else:
       return jsonify({
         "status": "Failed"
+      })
+  else:
+    return jsonify({
+        "status": "Failed",
+        "reason": "No json in body found"
       })
 
 
@@ -79,7 +99,6 @@ def stopWorker():
     return Response(response="Success!")
   except KeyError:
     return Response(response="Failed!")
-
 
 @app.route("/queue")
 @cross_origin()

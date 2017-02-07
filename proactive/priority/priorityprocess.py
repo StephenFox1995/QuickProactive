@@ -3,37 +3,35 @@ from apscheduler.schedulers.background import BackgroundScheduler
 from proactive.config import Configuration
 from proactive.travel import Travel, Metric
 from .order import Order
+from .taskmanager import TaskManager
 from .taskunit import TaskUnit
-from .queueworker import QueueWorker
 
 
-
-class PriorityWorker(QueueWorker):
-  def __init__(self, business, ordersDBConn, queue, refresh=5000):
+class PriorityProcess(object):
+  def __init__(self, business, workers, ordersDBConn, refresh=5000):
     """
+      @param businessID:(str) Object will all business info.
+      @param workers:(list) A list of worker objects.
       @param ordersDBConn:(db.prioritydb.PriorityDB) Database connection to read orders from.
-
-      @param businessID:(str) The id of the business.
-
-      @param queue:(orderpriority.TaskUnitPriorityQueue) A OrderPriorityQueue instance.
-
       @param refresh:(int) - milliseconds: How often the database should be read to when checking
         for new orders. How often the database should be written to with the current state of the
         priority queue.
     """
-    self._businessCoordinates = business["coordinates"]
-    self._businessID = business["id"]
+    self._business = business
+    self._businessCoordinates = business.coordinates
+    self._taskManager = TaskManager((business.period.begin, business.period.end))
+    self._taskManager.addWorkers(workers)
+    # TODO: Do not keep reference to this.
+    self._workers = workers
     self._ordersDBConn = ordersDBConn
-    self._pQueue = queue
     self._refresh = refresh
     self._config = Configuration()
     self._travel = Travel(gmapsKey=self._config.read([Configuration.GMAPS_KEY])[0])
     self.__scheduler = BackgroundScheduler()
-    self.__latestState = None
 
-
-  def __readUnprocessedOrders(self):
-    return self._ordersDBConn.read(self._businessID)
+  @property
+  def tasks(self):
+    return self._taskManager.tasks
 
   def run(self):
     logging.basicConfig()
@@ -48,15 +46,8 @@ class PriorityWorker(QueueWorker):
       Monitors the unprocessed orders and keeps the queue attribute
       in order according to how the orders should be released.
     """
-    from threading import current_thread
-    print(current_thread())
-    try:
-      self._pQueue.popAll()
-    except IndexError:
-      pass
-
-    freshOrders = self.__readUnprocessedOrders()
-    for order in freshOrders:
+    orders = self.__readUnprocessedOrders()
+    for order in orders:
       orderObj = Order(
         orderID=str(order["id"]),
         status=order["status"],
@@ -66,17 +57,20 @@ class PriorityWorker(QueueWorker):
         cost=order["cost"]
       )
       deadline = self._customerArrivalTime(orderObj.customerCoordinates)
-      print(deadline)
-      taskUnit = TaskUnit(
-        orderObj.createdAt,
-        deadline,
-        orderObj.cost,
-        orderObj.processing,
-        orderObj.orderID
+      task = TaskUnit(
+        createdAt=orderObj.createdAt,
+        deadline=deadline,
+        profit=orderObj.cost,
+        processing=orderObj.processing,
+        taskID=orderObj.orderID
       )
-      self._pQueue.add(taskUnit)
-      self.__latestState = self._pQueue.asDict()
+      self._taskManager.addTask(task)
+    self._taskManager.assignTasksToWorkers()
+    for w in self._workers:
+      print(w.assignedTasks)
 
+  def __readUnprocessedOrders(self):
+    return self._ordersDBConn.read(self._business.businessID)
 
   def _customerArrivalTime(self, customerCoordinates):
     return self._travel.find(
@@ -85,10 +79,3 @@ class PriorityWorker(QueueWorker):
       Metric.DURATION,
       measure="value"
     )
-
-  def _calculateCustomerDistance(self, order):
-    pass
-
-  def currentQueueState(self):
-    return self.__latestState
-

@@ -1,4 +1,5 @@
 import heapq as heap
+from copy import copy
 from .priority import Priority
 
 class TaskUnitPriorityQueue(object):
@@ -9,12 +10,12 @@ class TaskUnitPriorityQueue(object):
         raise TypeError("items arg should be of type list")
       # Check that all types are in Prioritized sub tree.
       [all(isinstance(i, Priority) for i in items)]
-      self.add(items)
+      self.push(items)
 
-
-  def add(self, obj):
+  def push(self, obj):
     if isinstance(obj, list):
-      [heap.heappush(self._pQueue, i) for i in obj]
+      for i in obj:
+        heap.heappush(self._pQueue, i)
     elif isinstance(obj, Priority):
       heap.heappush(self._pQueue, obj)
 
@@ -33,6 +34,9 @@ class TaskUnitPriorityQueue(object):
   def printQueue(self):
     for i in self._pQueue:
       print(i.asDict())
+
+  def items(self):
+    return copy(self._pQueue)
 
   def asDict(self):
     _dict = {"queue": []}
