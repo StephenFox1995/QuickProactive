@@ -36,7 +36,7 @@ class TaskUnit(Priority):
     self._profit = profit
     self._taskID = taskID
     self._data = data
-
+    self._assignedWorker = None
     if isinstance(deadline, datetime): #check deadline type
       self._deadline = deadline
       self._deadlineISO = self._deadline.isoformat()
@@ -65,6 +65,12 @@ class TaskUnit(Priority):
         "Release time is later than deadline, this is not allowed."
       )
 
+  def assignWorker(self, worker):
+    self._assignedWorker = worker
+
+  @property
+  def assignedWorker(self):
+    return self._assignedWorker
 
   @property
   def createdAt(self):
@@ -113,12 +119,16 @@ class TaskUnit(Priority):
     return self.release
 
   def asDict(self):
+    workerID = None
+    if self._assignedWorker:
+      workerID = self._assignedWorker.workerID
+      print("worker id is rthererekfd")
     return {
       "id": self.taskID,
       "releaseISO": self._releaseISO,
       "deadlineISO": self._deadlineISO,
-      "deadline": self._deadline,
       "profit": self._profit,
       "processing": self._processing,
-      "createdAtISO": self._createdAtISO
+      "createdAtISO": self._createdAtISO,
+      "assignedWorkerID": workerID
     }

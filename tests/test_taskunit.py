@@ -3,6 +3,7 @@ from unittest import TestCase
 from proactive.priority.taskunit import TaskUnit
 from proactive.utils import timeutil
 from proactive.priority import release
+from proactive.priority.worker import Worker
 from .testutil import tHour
 
 class TestTaskUnit(TestCase):
@@ -12,6 +13,7 @@ class TestTaskUnit(TestCase):
     self.deadline = 500
     self.profit = 2.56
     self.processing = 100
+    self.worker = Worker("W1", 2)
     self.globalTask = TaskUnit(
       createdAt=self.createdAt,
       deadline=self.deadline,
@@ -49,6 +51,7 @@ class TestTaskUnit(TestCase):
       processing=self.processing,
       taskID=self.taskID
     )
+    taskUnit.assignWorker(self.worker)
     # Calculate the correct ISO for task.
     deadline = timeutil.addSeconds(self.createdAt, self.deadline)
     expectedReleaseISO = release.releaseAt(
@@ -57,15 +60,14 @@ class TestTaskUnit(TestCase):
     ).isoformat()
     expectedDeadlineISO = timeutil.addSeconds(self.createdAt, self.deadline).isoformat()
     expectedCreatedAtISO = self.createdAt.isoformat()
-
     expectedResult = {
       "id": self.taskID,
       "releaseISO": expectedReleaseISO,
       "deadlineISO": expectedDeadlineISO,
       "createdAtISO": expectedCreatedAtISO,
-      "deadline": deadline,
       "profit": self.profit,
       "processing": self.processing,
+      "assignedWorkerID": self.worker.workerID
     }
     self.assertEqual(taskUnit.asDict(), expectedResult)
 
@@ -92,3 +94,15 @@ class TestTaskUnit(TestCase):
         release=tHour(13, 30),
         taskID=self.taskID
       )
+
+  def test_assignedWorker(self):
+    taskUnit = TaskUnit(
+      createdAt=self.createdAt,
+      deadline=self.deadline,
+      profit=self.profit,
+      processing=self.processing,
+      taskID=self.taskID
+    )
+    worker = Worker("W1", 2)
+    taskUnit.assignWorker(worker)
+    self.assertEqual(taskUnit.assignedWorker, worker)

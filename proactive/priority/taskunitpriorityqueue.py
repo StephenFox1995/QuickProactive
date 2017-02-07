@@ -38,7 +38,7 @@ class TaskUnitPriorityQueue(object):
   def items(self):
     return copy(self._pQueue)
 
-  def asDict(self):
+  def __dict__(self):
     _dict = {"queue": []}
     for i in self._pQueue:
       _dict["queue"].append(i.asDict())

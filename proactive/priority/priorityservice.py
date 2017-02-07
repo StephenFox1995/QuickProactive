@@ -1,5 +1,4 @@
 from .priorityprocess import PriorityProcess
-from .business import Business
 
 class PriorityService(object):
   class DuplicateProcessException(Exception):
@@ -13,7 +12,7 @@ class PriorityService(object):
     """
       Creates a new priorityprocess.PriorityProcess to periodically
       calculate the priority of new orders.
-      @param business:(object) Object that contains 'businessID'
+      @param business:(Business) Object that contains 'businessID'
       @param workers:(list) A list of worker objects.
       @param refresh:(int)  The refresh rate in milliseconds, i.e
                             how often the service will run.
@@ -29,16 +28,9 @@ class PriorityService(object):
     self.__processes[processID] = process
     process.run()
 
-  def workerQueueState(self, workerID):
-    """
-      Gets a workers queue state.
-      The state is gotten by invoking:
-        worker.currentQueueState()
-
-      @param workerID:(string) The id of the worker.
-    """
-    worker = self.__processes[workerID] # throws KeyError if doesn't exist.
-    return worker.currentQueueState()
+  def processState(self, processID):
+    process = self.__processes[processID]
+    return process.tasks
 
   @property
   def process(self, processID):

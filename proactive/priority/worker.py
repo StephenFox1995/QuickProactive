@@ -7,7 +7,7 @@ class Worker(object):
     self._assignedTasks = []
 
   @property
-  def id(self):
+  def workerID(self):
     return self._id
 
   @property

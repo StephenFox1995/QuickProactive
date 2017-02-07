@@ -21,8 +21,6 @@ class PriorityProcess(object):
     self._businessCoordinates = business.coordinates
     self._taskManager = TaskManager((business.period.begin, business.period.end))
     self._taskManager.addWorkers(workers)
-    # TODO: Do not keep reference to this.
-    self._workers = workers
     self._ordersDBConn = ordersDBConn
     self._refresh = refresh
     self._config = Configuration()
@@ -31,7 +29,10 @@ class PriorityProcess(object):
 
   @property
   def tasks(self):
-    return self._taskManager.tasks
+    tasks = []
+    for task in self._taskManager.assignedTasks:
+      tasks.append(task.asDict())
+    return tasks
 
   def run(self):
     logging.basicConfig()
@@ -66,8 +67,6 @@ class PriorityProcess(object):
       )
       self._taskManager.addTask(task)
     self._taskManager.assignTasksToWorkers()
-    for w in self._workers:
-      print(w.assignedTasks)
 
   def __readUnprocessedOrders(self):
     return self._ordersDBConn.read(self._business.businessID)

@@ -96,18 +96,28 @@ def stopWorker():
   processID = request.args["id"]
   try:
     priorityService.stopProcess(processID)
-    return Response(response="Success!")
+    return jsonify({
+      "status": "Success",
+    })
   except KeyError:
-    return Response(response="Failed!")
+    return jsonify({
+      "status": "Failed",
+      "reason": ("No process id %s exists." % processID)
+    })
+  else:
+    return jsonify({
+      "status": "Failed",
+      "reason": "Unkown error occurred."
+    })
 
 
-@app.route("/queue")
+@app.route("/tasks")
 @cross_origin()
 def priority():
   workerID = request.args["id"]
   try:
-    queueState = json.dumps(priorityService.workerQueueState(workerID=workerID))
-    return Response(response=queueState)
+    tasks = json.dumps(priorityService.processState(processID=workerID))
+    return Response(response=tasks)
   except KeyError:
     return Response(response="Failed!")
 

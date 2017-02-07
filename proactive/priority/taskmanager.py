@@ -45,9 +45,9 @@ class TaskManager(object):
   def __init__(self, period):
     self._tasksQ = TaskUnitPriorityQueue()
     self._tasks = []
-    self._assignedTasks = []
     self._intervalTree = IntervalTree()
     self._workers = WorkerQueue()
+    self._assignedTasks = []
     if isinstance(period[0], datetime) and isinstance(period[1], datetime):
       self.__start = period[0]
       self.__end = period[1]
@@ -57,8 +57,8 @@ class TaskManager(object):
       )
 
   @property
-  def tasks(self):
-    return self._tasksQ.items()
+  def assignedTasks(self):
+    return self._assignedTasks
 
   def addTask(self, task):
     if task.deadline > self.__end:
@@ -144,8 +144,9 @@ class TaskManager(object):
       worker = self._workers.next()
       task = self._tasksQ.pop()
       self._intervalTree.removei(task.release, task.deadline, task.taskID)
-      self._assignedTasks.append(task)
       try:
         worker.assignTask(task)
+        task.assignWorker(worker)
+        self._assignedTasks.append(task)
       except ExceededWorkerMultitaskLimit:
         pass
