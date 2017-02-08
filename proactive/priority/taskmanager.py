@@ -39,6 +39,19 @@ class ConflictSet(object):
         intervals.append(y)
     return intervals
 
+  def asDict(self):
+    conflicts = []
+    for _sets in self._conflicts:
+      conflictSet = []
+      for conflict in _sets:
+        _conflict = {}
+        begin = conflict.begin.isoformat()
+        end = conflict.end.isoformat()
+        _conflict["begin"] = begin
+        _conflict["end"] = end
+        conflictSet.append(_conflict)
+      conflicts.append(conflictSet)
+    return conflicts
 
 
 class TaskManager(object):
@@ -155,7 +168,8 @@ class TaskManager(object):
   def assignTasksToWorkers(self):
     for task in self._tasksQ:
       worker = self._workers.next()
-      self._intervalTree.removei(task.release, task.deadline, task.taskID)
+      # TODO: don't remove task fro tree until there asctually finished.
+      # self._intervalTree.removei(task.release, task.deadline, task.taskID)
       try:
         worker.assignTask(task)
         task.assignWorker(worker)

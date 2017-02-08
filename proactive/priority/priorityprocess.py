@@ -38,6 +38,7 @@ class PriorityProcess(object):
 
   def taskSetState(self):
     state = {}
+    state["conflicts"] = self._taskManager.findConflicts().asDict()
     state["assignedTasks"] = map(lambda t: t.asDict(), self._taskManager.assignedTasks)
     state["unassignedTasks"] = map(lambda t: t.asDict(), self._taskManager.unassignedTasks)
     return state

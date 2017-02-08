@@ -1,4 +1,3 @@
-import json
 from flask import Flask, request, Response, jsonify
 from flask_cors import CORS, cross_origin
 from proactive.config import Configuration
@@ -78,16 +77,16 @@ def begin():
       return jsonify({
         "status": "Failed",
         "reason": "Process already exists for id: %s" % businessID
-      })
+      }), 500
     else:
       return jsonify({
         "status": "Failed"
-      })
+      }), 500
   else:
     return jsonify({
         "status": "Failed",
         "reason": "No json in body found"
-      })
+      }),
 
 
 @app.route("/stopservice", methods=["GET"])
@@ -103,12 +102,12 @@ def stopWorker():
     return jsonify({
       "status": "Failed",
       "reason": ("No process id %s exists." % processID)
-    })
+    }), 404
   else:
     return jsonify({
       "status": "Failed",
       "reason": "Unkown error occurred."
-    })
+    }), 500
 
 
 @app.route("/tasks")
@@ -116,10 +115,13 @@ def stopWorker():
 def priority():
   processID = request.args["id"]
   try:
-    state = json.dumps(priorityService.taskSetState(processID=processID))
-    return Response(response=state)
+    state = priorityService.taskSetState(processID=processID)
+    return jsonify({"state": state})
   except KeyError:
-    return Response(response="Failed!")
+    return jsonify({
+      "status": "failed",
+      "reason": "No tasks exist for id %s" % processID
+    }), 500
 
 
 if __name__ == "__main__":
