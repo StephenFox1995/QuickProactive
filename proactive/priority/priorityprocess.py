@@ -26,6 +26,8 @@ class PriorityProcess(object):
     self._config = Configuration()
     self._travel = Travel(gmapsKey=self._config.read([Configuration.GMAPS_KEY])[0])
     self.__scheduler = BackgroundScheduler()
+    self.__orderStore = []
+
 
   @property
   def tasks(self):
@@ -33,6 +35,12 @@ class PriorityProcess(object):
     for task in self._taskManager.assignedTasks:
       tasks.append(task.asDict())
     return tasks
+
+  def taskSetState(self):
+    state = {}
+    state["assignedTasks"] = map(lambda t: t.asDict(), self._taskManager.assignedTasks)
+    state["unassignedTasks"] = map(lambda t: t.asDict(), self._taskManager.unassignedTasks)
+    return state
 
   def run(self):
     logging.basicConfig()
@@ -47,7 +55,7 @@ class PriorityProcess(object):
       Monitors the unprocessed orders and keeps the queue attribute
       in order according to how the orders should be released.
     """
-    orders = self.__readUnprocessedOrders()
+    orders = self.__readUnprocessedOrders(self.__orderStore)
     for order in orders:
       orderObj = Order(
         orderID=str(order["id"]),
@@ -57,6 +65,7 @@ class PriorityProcess(object):
         createdAt=order["createdAt"],
         cost=order["cost"]
       )
+      self.__orderStore.append(orderObj) # add to internal storage.
       deadline = self._customerArrivalTime(orderObj.customerCoordinates)
       task = TaskUnit(
         createdAt=orderObj.createdAt,
@@ -68,8 +77,8 @@ class PriorityProcess(object):
       self._taskManager.addTask(task)
     self._taskManager.assignTasksToWorkers()
 
-  def __readUnprocessedOrders(self):
-    return self._ordersDBConn.read(self._business.businessID)
+  def __readUnprocessedOrders(self, excluding):
+    return self._ordersDBConn.read(self._business.businessID, excluding)
 
   def _customerArrivalTime(self, customerCoordinates):
     return self._travel.find(

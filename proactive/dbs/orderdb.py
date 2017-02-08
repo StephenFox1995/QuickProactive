@@ -7,13 +7,20 @@ class OrderDB(Database):
   def __init__(self, uri, port, dbName, user=None, password=None):
     super(OrderDB, self).__init__(uri, port, dbName, user, password)
 
-  def read(self, businessID):
+  def read(self, businessID, excluding=None):
+    """
+      Read all orders for a business.
+      @param businessID: The id of the business.
+      @param excluding: A list of orderIDs to not return.
+    """
     super(OrderDB, self).read()
+    excluded = map(lambda e: ObjectId(e.orderID), excluding)
     pipeline = [
       {
         "$match": {
           "businessID": ObjectId(businessID),
-          "status": Order.Status.UNPROCESSED
+          "status": Order.Status.UNPROCESSED,
+          "_id": {"$nin": excluded}
         }
       },
       {

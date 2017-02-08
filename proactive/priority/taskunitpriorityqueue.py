@@ -12,6 +12,15 @@ class TaskUnitPriorityQueue(object):
       [all(isinstance(i, Priority) for i in items)]
       self.push(items)
 
+  def __iter__(self):
+    return self
+
+  def next(self):
+    try:
+      return heap.heappop(self._pQueue)
+    except IndexError:
+      raise StopIteration
+
   def push(self, obj):
     if isinstance(obj, list):
       for i in obj:

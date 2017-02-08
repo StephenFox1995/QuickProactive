@@ -28,9 +28,8 @@ class PriorityService(object):
     self.__processes[processID] = process
     process.run()
 
-  def processState(self, processID):
-    process = self.__processes[processID]
-    return process.tasks
+  def taskSetState(self, processID):
+    return self.__processes[processID].taskSetState()
 
   @property
   def process(self, processID):

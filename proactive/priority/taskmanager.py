@@ -48,6 +48,7 @@ class TaskManager(object):
     self._intervalTree = IntervalTree()
     self._workers = WorkerQueue()
     self._assignedTasks = []
+    self._unassignedTasks = []
     if isinstance(period[0], datetime) and isinstance(period[1], datetime):
       self.__start = period[0]
       self.__end = period[1]
@@ -59,6 +60,18 @@ class TaskManager(object):
   @property
   def assignedTasks(self):
     return self._assignedTasks
+
+  @property
+  def unassignedTasks(self):
+    return self._unassignedTasks
+
+  @property
+  def tasks(self):
+    """
+      Returns all the tasks the manager currently holds.
+      The tasks are return in no particular order.
+    """
+    return self._tasksQ.items()
 
   def addTask(self, task):
     if task.deadline > self.__end:
@@ -140,13 +153,12 @@ class TaskManager(object):
       self.addWorker(w)
 
   def assignTasksToWorkers(self):
-    for _ in range(0, self._workers.size()):
+    for task in self._tasksQ:
       worker = self._workers.next()
-      task = self._tasksQ.pop()
       self._intervalTree.removei(task.release, task.deadline, task.taskID)
       try:
         worker.assignTask(task)
         task.assignWorker(worker)
         self._assignedTasks.append(task)
       except ExceededWorkerMultitaskLimit:
-        pass
+        self._unassignedTasks.append(task)

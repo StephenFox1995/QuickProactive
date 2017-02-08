@@ -122,7 +122,7 @@ class TaskUnit(Priority):
     workerID = None
     if self._assignedWorker:
       workerID = self._assignedWorker.workerID
-      print("worker id is rthererekfd")
+
     return {
       "id": self.taskID,
       "releaseISO": self._releaseISO,

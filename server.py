@@ -114,10 +114,10 @@ def stopWorker():
 @app.route("/tasks")
 @cross_origin()
 def priority():
-  workerID = request.args["id"]
+  processID = request.args["id"]
   try:
-    tasks = json.dumps(priorityService.processState(processID=workerID))
-    return Response(response=tasks)
+    state = json.dumps(priorityService.taskSetState(processID=processID))
+    return Response(response=state)
   except KeyError:
     return Response(response="Failed!")
 
