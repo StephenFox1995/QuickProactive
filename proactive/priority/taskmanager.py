@@ -175,6 +175,7 @@ class TaskManager(object):
         self._assignTaskToAnyWorkerOrFail(task)
       except UnassignableTaskException:
         tasksToPutBackIntoQueue.append(task)
+        self._unassignedTasks.append(task)
     self._tasksQ.push(tasksToPutBackIntoQueue)
 
   def _assignTaskToAnyWorkerOrFail(self, task):
@@ -185,7 +186,7 @@ class TaskManager(object):
       # check if we've already tried to assign it  task.
       if worker.canAssignTask():
         worker.assignTask(task)
-        task.assignWorker(weakref.ref(worker))
+        task.assignWorker(weakref.ref(worker)())
         # check if this task was ever in unassigned tasks because
         # at some stage it could not be assigned.
         # if so take it out of unassigned and put in assigned list.

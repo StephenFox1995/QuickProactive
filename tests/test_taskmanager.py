@@ -126,10 +126,10 @@ class TestTaskManager(TestCase):
       Worker('w1', 2),
       Worker('w2', 2)
     ]
-    taskManger = TaskManager(self.tPeriod())
-    taskManger.addTasks(self.tasks)
-    taskManger.addWorkers(workers)
-    taskManger.assignTasksToWorkers()
+    taskManager = TaskManager(self.tPeriod())
+    taskManager.addTasks(self.tasks)
+    taskManager.addWorkers(workers)
+    taskManager.assignTasksToWorkers()
     self.assertEqual(self.tasks[0], workers[0].assignedTasks[0])
     self.assertEqual(self.tasks[1], workers[1].assignedTasks[0])
     self.assertEqual(self.tasks[2], workers[0].assignedTasks[1])
@@ -141,10 +141,10 @@ class TestTaskManager(TestCase):
       Worker('w1', 1),
       Worker('w2', 1)
     ]
-    taskManger = TaskManager(self.tPeriod())
-    taskManger.addTasks(self.tasks)
-    taskManger.addWorkers(workers)
-    taskManger.assignTasksToWorkers()
+    taskManager = TaskManager(self.tPeriod())
+    taskManager.addTasks(self.tasks)
+    taskManager.addWorkers(workers)
+    taskManager.assignTasksToWorkers()
     self.assertEqual(self.tasks[0], workers[0].assignedTasks[0])
     self.assertEqual(self.tasks[1], workers[1].assignedTasks[0])
 
@@ -159,15 +159,19 @@ class TestTaskManager(TestCase):
       Worker("weee4", 1),
       Worker("weee5", 1)
     ]
-    taskManger = TaskManager(self.tPeriod())
-    taskManger.addTasks(self.tasks)
-    taskManger.addWorkers(initialWorkers)
-    taskManger.assignTasksToWorkers()
+    taskManager = TaskManager(self.tPeriod())
+    taskManager.addTasks(self.tasks)
+    taskManager.addWorkers(initialWorkers)
+    taskManager.assignTasksToWorkers()
     self.assertEqual(self.tasks[0], initialWorkers[0].assignedTasks[0]) #check w1
     self.assertEqual(self.tasks[1], initialWorkers[1].assignedTasks[0]) #check w2
     self.assertEqual(self.tasks[2], initialWorkers[2].assignedTasks[0]) #check w3
+    self.assertEqual(taskManager.unassignedTasks[0], self.tasks[3])
+    self.assertEqual(taskManager.unassignedTasks[1], self.tasks[4])
+    self.assertEqual(taskManager.unassignedTasks[2], self.tasks[5])
     #add more tasks and make sure they were assigned to the new workers.
-    taskManger.addWorkers(extraWorkers)
-    taskManger.assignTasksToWorkers()
+    taskManager.addWorkers(extraWorkers)
+    taskManager.assignTasksToWorkers()
     self.assertEqual(self.tasks[3], extraWorkers[0].assignedTasks[0]) #check w4
     self.assertEqual(self.tasks[4], extraWorkers[1].assignedTasks[0]) #check w5
+    self.assertEqual(taskManager.unassignedTasks[0], self.tasks[5])
