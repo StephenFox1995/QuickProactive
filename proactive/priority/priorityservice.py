@@ -28,10 +28,6 @@ class PriorityService(object):
     self.__processes[processID] = process
     process.run()
 
-  def taskSetState(self, processID):
-    return self.__processes[processID].taskSetState()
-
-  @property
   def process(self, processID):
     return self.__processes[processID] # throws KeyError if doesn't exist.
 

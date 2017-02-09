@@ -24,7 +24,7 @@ class TestTaskUnitPriorityQueue(TestCase):
     expectedCount = 1
     self.assertEqual(pQueue.count(), expectedCount)
 
-  def test_addToEmptyQueue(self):
+  def test_pushToEmptyQueue(self):
     items = [
       TaskUnit(
         createdAt=self._createdAt,
@@ -38,7 +38,7 @@ class TestTaskUnitPriorityQueue(TestCase):
     expectedCount = 1
     self.assertEqual(pQueue.count(), expectedCount)
 
-  def test_addToPopulatedQueue(self):
+  def test_pushToPopulatedQueue(self):
     items = [
       TaskUnit(
         createdAt=self._createdAt,
@@ -59,7 +59,7 @@ class TestTaskUnitPriorityQueue(TestCase):
     expectedCount = 2
     self.assertEqual(pQueue.count(), expectedCount)
 
-  def test_addWithNonListObject(self):
+  def test_pushWithNonListObject(self):
     item = TaskUnit(
       createdAt=self._createdAt,
       deadline=self._deadline,
@@ -70,6 +70,25 @@ class TestTaskUnitPriorityQueue(TestCase):
     pQueue.push(item)
     expectedCount = 1
     self.assertEqual(pQueue.count(), expectedCount)
+
+  def test_pushWithListObject(self):
+    items = [
+      TaskUnit(
+        createdAt=self._createdAt,
+        deadline=self._deadline,
+        profit=self._profit,
+        processing=self._processing
+      ),
+      TaskUnit(
+        createdAt=self._createdAt,
+        deadline=self._deadline,
+        profit=self._profit,
+        processing=self._processing
+      )
+    ]
+    pQueue = TaskUnitPriorityQueue()
+    pQueue.push(items)
+    self.assertEqual(pQueue.count(), 2)
 
   def test_constructWithNonListObject(self):
     item = TaskUnit(

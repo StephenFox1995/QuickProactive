@@ -1,9 +1,11 @@
 from datetime import datetime
 from intervaltree import IntervalTree
-from .exceptions import LateDeadlineException, ExceededWorkerMultitaskLimit
+import weakref
+from .exceptions import LateDeadlineException, UnassignableTaskException
 from .taskunitpriorityqueue import TaskUnitPriorityQueue
 from .workerqueue import WorkerQueue
 from .worker import Worker
+
 
 class ConflictSet(object):
   def __init__(self, conflicts):
@@ -165,14 +167,35 @@ class TaskManager(object):
     for w in workers:
       self.addWorker(w)
 
+# TODO: rememeber to remove task from interval tree too.
   def assignTasksToWorkers(self):
+    tasksToPutBackIntoQueue = []
     for task in self._tasksQ:
-      worker = self._workers.next()
-      # TODO: don't remove task fro tree until there asctually finished.
-      # self._intervalTree.removei(task.release, task.deadline, task.taskID)
       try:
+        self._assignTaskToAnyWorkerOrFail(task)
+      except UnassignableTaskException:
+        tasksToPutBackIntoQueue.append(task)
+    self._tasksQ.push(tasksToPutBackIntoQueue)
+
+  def _assignTaskToAnyWorkerOrFail(self, task):
+    maxTasksAchievable = self._workers.maxTasksAchievable()
+    for _ in range(0, maxTasksAchievable):
+      # get next worker
+      worker = self._workers.nextWorker()
+      # check if we've already tried to assign it  task.
+      if worker.canAssignTask():
         worker.assignTask(task)
-        task.assignWorker(worker)
-        self._assignedTasks.append(task)
-      except ExceededWorkerMultitaskLimit:
-        self._unassignedTasks.append(task)
+        task.assignWorker(weakref.ref(worker))
+        # check if this task was ever in unassigned tasks because
+        # at some stage it could not be assigned.
+        # if so take it out of unassigned and put in assigned list.
+        if task in self._unassignedTasks:
+          self._unassignedTasks.remove(task)
+          self._assignedTasks.append(task)
+        else: # not in unassigned before so put straight into assigned.
+          self._assignedTasks.append(task)
+        return # task has been assigned return from method
+      else:
+        continue
+    # task was not assigned.
+    raise UnassignableTaskException

@@ -36,13 +36,6 @@ class PriorityProcess(object):
       tasks.append(task.asDict())
     return tasks
 
-  def taskSetState(self):
-    state = {}
-    state["conflicts"] = self._taskManager.findConflicts().asDict()
-    state["assignedTasks"] = map(lambda t: t.asDict(), self._taskManager.assignedTasks)
-    state["unassignedTasks"] = map(lambda t: t.asDict(), self._taskManager.unassignedTasks)
-    return state
-
   def run(self):
     logging.basicConfig()
     self.__scheduler.add_job(self.__monitor, 'interval', seconds=self._refresh/1000)
@@ -88,3 +81,13 @@ class PriorityProcess(object):
       Metric.DURATION,
       measure="value"
     )
+
+  def taskSetState(self):
+    state = {}
+    state["conflicts"] = self._taskManager.findConflicts().asDict()
+    state["assignedTasks"] = map(lambda t: t.asDict(), self._taskManager.assignedTasks)
+    state["unassignedTasks"] = map(lambda t: t.asDict(), self._taskManager.unassignedTasks)
+    return state
+
+  def addWorkers(self, workers):
+    self._taskManager.addWorkers(workers)

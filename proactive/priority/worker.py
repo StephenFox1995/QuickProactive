@@ -1,4 +1,4 @@
-from .exceptions import ExceededWorkerMultitaskLimit
+from .exceptions import MaxTaskLimitReachedException
 
 class Worker(object):
   def __init__(self, workerID, multitask):
@@ -18,10 +18,16 @@ class Worker(object):
   def multitask(self):
     return self._multitask
 
+  def canAssignTask(self):
+    return not(len(self._assignedTasks) >= self._multitask)
+
   def assignTask(self, task):
-    if len(self._assignedTasks) == self._multitask:
-      raise ExceededWorkerMultitaskLimit(
+    if not self.canAssignTask():
+      raise MaxTaskLimitReachedException(
         "Cannot assign any more tasks to worker: %s", self._id
       )
     else:
       self._assignedTasks.append(task)
+
+  def __str__(self):
+    return self._id

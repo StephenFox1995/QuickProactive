@@ -19,6 +19,7 @@ orderDBConn = OrderDB(
 orderDBConn.connect()
 priorityService = PriorityService(orderDBConn)
 
+
 def transormWorkerObject(obj):
   return Worker(
     workerID=obj["id"],
@@ -110,12 +111,13 @@ def stopWorker():
     }), 500
 
 
-@app.route("/tasks")
+@app.route("/tasks", methods=["GET"])
 @cross_origin()
 def priority():
   processID = request.args["id"]
   try:
-    state = priorityService.taskSetState(processID=processID)
+    process = priorityService.process(processID=processID)
+    state = process.taskSetState()
     return jsonify({"state": state})
   except KeyError:
     return jsonify({
@@ -123,6 +125,41 @@ def priority():
       "reason": "No tasks exist for id %s" % processID
     }), 500
 
+
+@app.route("/addworkers", methods=["POST"])
+@cross_origin()
+def addWorkers():
+  """
+    {
+      "business": {
+		  "id": "58876b6905733be97fb526ad",
+        "workers":[
+          { "name":"Andrew Worker", "id": "W1234", "multitask": 2},
+          { "name": "Sinead Worker", "id": "W1234", "multitask": 2 }
+        ]
+      },
+    }
+  """
+  _json = request.get_json()
+  if _json:
+    businessID = _json["business"]["id"]
+    workers = _json["business"]["workers"]
+    workerInstances = []
+    for w in workers:
+      workerInstances.append(transormWorkerObject(w))
+    try:
+      process = priorityService.process(processID=businessID)
+      process.addWorkers(workerInstances)
+      return jsonify({
+      "status": "Success",
+    })
+    except KeyError:
+      return jsonify({
+        "status": "failed",
+        "reason": "No tasks exist for id %s" % businessID
+      }), 500
+  else:
+    pass
 
 if __name__ == "__main__":
   app.run(host='0.0.0.0', port=6566)

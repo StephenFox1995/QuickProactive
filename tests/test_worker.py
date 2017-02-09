@@ -2,7 +2,7 @@ from unittest import TestCase
 from datetime import datetime
 from proactive.priority.worker import Worker
 from proactive.priority.taskunit import TaskUnit
-from proactive.priority.exceptions import MaxTaskLimitReached
+from proactive.priority.exceptions import MaxTaskLimitReachedException
 
 
 class TestWorker(TestCase):
@@ -32,7 +32,7 @@ class TestWorker(TestCase):
     worker = Worker("W1", 2)
     worker.assignTask(self.task1)
     worker.assignTask(self.task2)
-    with self.assertRaises(MaxTaskLimitReached):
+    with self.assertRaises(MaxTaskLimitReachedException):
       worker.assignTask(self.task3)
 
 

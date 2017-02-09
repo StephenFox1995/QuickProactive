@@ -2,6 +2,7 @@ import heapq as heap
 from copy import copy
 from .priority import Priority
 
+
 class TaskUnitPriorityQueue(object):
   def __init__(self, items=None):
     self._pQueue = []

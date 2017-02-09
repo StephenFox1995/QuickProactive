@@ -1,5 +1,8 @@
 class LateDeadlineException(Exception):
   pass
 
-class ExceededWorkerMultitaskLimit(Exception):
+class MaxTaskLimitReachedException(Exception):
+  pass
+
+class UnassignableTaskException(Exception):
   pass
