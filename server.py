@@ -23,7 +23,7 @@ priorityService = PriorityService(orderDBConn)
 def transormWorkerObject(obj):
   return Worker(
     workerID=obj["id"],
-    multitask=obj["multitask"]
+    multitask=int(obj["multitask"])
   )
 
 @app.route("/beginservice", methods=["POST"])
@@ -78,7 +78,7 @@ def begin():
       return jsonify({
         "status": "Failed",
         "reason": "Process already exists for id: %s" % businessID
-      }), 500
+      }), 400
     else:
       return jsonify({
         "status": "Failed"
@@ -87,7 +87,7 @@ def begin():
     return jsonify({
         "status": "Failed",
         "reason": "No json in body found"
-      }),
+      }), 422
 
 
 @app.route("/stopservice", methods=["GET"])

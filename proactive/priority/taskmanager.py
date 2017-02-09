@@ -175,7 +175,8 @@ class TaskManager(object):
         self._assignTaskToAnyWorkerOrFail(task)
       except UnassignableTaskException:
         tasksToPutBackIntoQueue.append(task)
-        self._unassignedTasks.append(task)
+        if task not in self._unassignedTasks:
+          self._unassignedTasks.append(task)
     self._tasksQ.push(tasksToPutBackIntoQueue)
 
   def _assignTaskToAnyWorkerOrFail(self, task):
