@@ -132,3 +132,18 @@ class TestTaskManager(TestCase):
     taskManger.assignTasksToWorkers()
     self.assertEqual(self.tasks[0], workers[0].assignedTasks[0])
     self.assertEqual(self.tasks[1], workers[1].assignedTasks[0])
+    self.assertEqual(self.tasks[2], workers[0].assignedTasks[1])
+    self.assertEqual(self.tasks[3], workers[1].assignedTasks[1])
+
+
+  def test_addWorkersAfterInitialAssignment(self):
+    workers = [
+      Worker('w1', 1),
+      Worker('w2', 1)
+    ]
+    taskManger = TaskManager(self.tPeriod())
+    taskManger.addTasks(self.tasks)
+    taskManger.addWorkers(workers)
+    taskManger.assignTasksToWorkers()
+    self.assertEqual(self.tasks[0], workers[0].assignedTasks[0])
+    self.assertEqual(self.tasks[1], workers[1].assignedTasks[0])
