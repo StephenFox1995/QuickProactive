@@ -1,6 +1,6 @@
 from unittest import TestCase
 from datetime import datetime
-from proactive.priority.business import Period, Business
+from proactive.businessobjects.business import Period, Business
 
 
 class TestPeriod(TestCase):

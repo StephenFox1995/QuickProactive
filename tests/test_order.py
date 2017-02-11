@@ -1,6 +1,6 @@
 from datetime import datetime
-from proactive.priority.order import Order
 from unittest import TestCase
+from proactive.businessobjects.order import Order
 
 
 class TestOrder(TestCase):

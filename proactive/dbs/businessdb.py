@@ -1,6 +1,7 @@
 from bson.objectid import ObjectId
+from proactive.businessobjects.business import Business
 from .database import Database
-from proactive.priority.business import Business
+
 
 class BusinessDB(Database):
   def __init__(self, uri, port, dbName, user=None, password=None):

@@ -1,7 +1,6 @@
 from bson import ObjectId
-from proactive.priority.order import Order
+from proactive.businessobjects.order import Order
 from .database import Database
-
 
 class OrderDB(Database):
   def __init__(self, uri, port, dbName, user=None, password=None):

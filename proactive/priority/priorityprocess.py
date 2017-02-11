@@ -2,7 +2,7 @@ import logging
 from apscheduler.schedulers.background import BackgroundScheduler
 from proactive.config import Configuration
 from proactive.travel import Travel, Metric
-from .order import Order
+from proactive.businessobjects.order import Order
 from .taskmanager import TaskManager
 from .taskunit import TaskUnit
 

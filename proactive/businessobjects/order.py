@@ -1,4 +1,6 @@
-class Order(object):
+from .dataitem import DataItem
+
+class Order(DataItem):
   class Status(object):
     UNPROCESSED = "unprocessed"
     PROCESSED = "processed"
@@ -39,6 +41,9 @@ class Order(object):
   @property
   def createdAt(self):
     return self._createdAt
+
+  def asDict(self):
+    return
 
 
 
