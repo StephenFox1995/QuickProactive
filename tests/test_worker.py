@@ -28,13 +28,13 @@ class TestWorker(TestCase):
       processing=100,
       taskID="test1234"
     )
+
   def test_maxTasksLimit(self):
     worker = Worker("W1", 2)
     worker.assignTask(self.task1)
     worker.assignTask(self.task2)
     with self.assertRaises(MaxTaskLimitReachedException):
       worker.assignTask(self.task3)
-
 
   def test_exactTaskLimit(self):
     worker = Worker("W1", 2)
@@ -49,3 +49,9 @@ class TestWorker(TestCase):
     self.assertTrue(worker.canAssignTask())
     worker.assignTask(self.task2)
     self.assertFalse(worker.canAssignTask())
+
+  def test_unnasignTask(self):
+    worker = Worker("W1", 2)
+    worker.assignTask(self.task1)
+    worker.unassignTask(self.task1)
+    self.assertEqual(len(worker.assignedTasks), 0)

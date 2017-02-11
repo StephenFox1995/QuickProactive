@@ -1,4 +1,4 @@
-from .exceptions import MaxTaskLimitReachedException
+from .exceptions import MaxTaskLimitReachedException, UnkownTaskException
 
 class Worker(object):
   def __init__(self, workerID, multitask):
@@ -17,6 +17,12 @@ class Worker(object):
   @property
   def multitask(self):
     return self._multitask
+
+  def unassignTask(self, task):
+    if task in self._assignedTasks:
+      self._assignedTasks.remove(task)
+    else:
+      raise UnkownTaskException
 
   def canAssignTask(self):
     return not(len(self._assignedTasks) >= self._multitask)

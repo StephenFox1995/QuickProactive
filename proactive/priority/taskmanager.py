@@ -1,7 +1,8 @@
 from datetime import datetime
-from intervaltree import IntervalTree
+from copy import copy
 import weakref
-from .exceptions import LateDeadlineException, UnassignableTaskException
+from intervaltree import IntervalTree
+from .exceptions import LateDeadlineException, UnassignableTaskException, UnkownTaskException
 from .taskunitpriorityqueue import TaskUnitPriorityQueue
 from .workerqueue import WorkerQueue
 from .worker import Worker
@@ -61,12 +62,13 @@ class TaskManager(object):
     self._tasksQ = TaskUnitPriorityQueue()
     self._tasks = []
     self._intervalTree = IntervalTree()
-    self._workers = WorkerQueue()
+    self._workersQ = WorkerQueue()
+    self._workers = []
     self._assignedTasks = []
     self._unassignedTasks = []
     if isinstance(period[0], datetime) and isinstance(period[1], datetime):
-      self.__start = period[0]
-      self.__end = period[1]
+      self._start = period[0]
+      self._end = period[1]
     else:
       raise TypeError(
         "period[0] and period[1] should be type<'datetime'>."
@@ -86,13 +88,13 @@ class TaskManager(object):
       Returns all the tasks the manager currently holds.
       The tasks are return in no particular order.
     """
-    return self._tasksQ.items()
+    return copy(self._tasks)
 
   def addTask(self, task):
-    if task.deadline > self.__end:
+    if task.deadline > self._end:
       raise LateDeadlineException(
         "Cannot process this task as it's deadline is %s is after %s"
-        % (task.deadline, self.__end)
+        % (task.deadline, self._end)
       )
     if task not in self._tasks:
       self._tasks.append(task)
@@ -109,6 +111,26 @@ class TaskManager(object):
       end=task.deadline,
       data=task.taskID
     )
+
+  def _getTask(self, taskID):
+    for t in self._tasks:
+      if t.taskID == taskID:
+        return t
+
+  def removeTask(self, task=None, taskID=None):
+    if taskID:
+      task = self._getTask(taskID)
+      if task is None:
+        return
+    self._intervalTree.discardi(task.release, task.deadline, task.taskID)
+    if task in self._assignedTasks:
+      self._assignedTasks.remove(task)
+    self._tasks.remove(task)
+    for w in self._workers: # ask whatever worker has the task to unassign it.
+      try:
+        w.unassignTask(task)
+      except UnkownTaskException:
+        pass
 
   def findConflicts(self):
     """
@@ -157,7 +179,8 @@ class TaskManager(object):
 
   def addWorker(self, worker):
     if isinstance(worker, Worker):
-      self._workers.put(worker)
+      self._workersQ.put(worker)
+      self._workers.append(worker)
     else:
       raise TypeError(
         "Cannot add worker type %s, should be type<'Worker'>" % type(worker)
@@ -180,10 +203,10 @@ class TaskManager(object):
     self._tasksQ.push(tasksToPutBackIntoQueue)
 
   def _assignTaskToAnyWorkerOrFail(self, task):
-    maxTasksAchievable = self._workers.maxTasksAchievable()
+    maxTasksAchievable = self._workersQ.maxTasksAchievable()
     for _ in range(0, maxTasksAchievable):
       # get next worker
-      worker = self._workers.nextWorker()
+      worker = self._workersQ.nextWorker()
       # check if we've already tried to assign it  task.
       if worker.canAssignTask():
         worker.assignTask(task)

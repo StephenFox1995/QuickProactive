@@ -18,6 +18,21 @@ class TestWorkerQueue(TestCase):
     workerQ.put(worker4)
     self.assertEqual(workerQ.maxTasksAchievable(), 6)
 
+  def test_removeWorker(self):
+    workers = [
+      Worker('w1', 1),
+      Worker('w2', 1),
+      Worker('w3', 1),
+      Worker('w4', 1)
+    ]
+    workerQ = WorkerQueue()
+    workerQ.put(workers)
+    workerQ.removeWorker(workers[2])
+    self.assertEqual(workerQ.nextWorker(), workers[0])
+    self.assertEqual(workerQ.nextWorker(), workers[1])
+    self.assertEqual(workerQ.nextWorker(), workers[3])
+    self.assertEqual(workerQ.size(), 3)
+
   def test_putList(self):
     workers1 = [Worker("W1", 2), Worker("W2", 2)]
     workers2 = [Worker("W3", 1), Worker("W4", 1)]

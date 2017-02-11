@@ -4,6 +4,7 @@ class WorkerQueue(object):
   def __init__(self):
     self._queue = Queue(maxsize=-1)
     self._workers = []
+    self._workersToRemove = []
 
   def put(self, worker):
     if isinstance(worker, list):
@@ -16,8 +17,15 @@ class WorkerQueue(object):
 
   def nextWorker(self):
     worker = self._queue.get() # take woker from the queue.
+    if worker in self._workersToRemove:
+      self._workersToRemove.remove(worker)
+      return self.nextWorker()
     self._queue.put(worker) # put the worker to the back of the queue.
     return worker
+
+  def removeWorker(self, worker):
+    self._workers.remove(worker)
+    self._workersToRemove.append(worker)
 
   def size(self):
     return self._queue.qsize()

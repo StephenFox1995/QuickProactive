@@ -81,6 +81,14 @@ class TestTaskManager(TestCase):
     taskManager.addTask(self.tasks[0])
     self.assertEqual(taskManager.tasks[0], self.tasks[0])
 
+  def test_removeTask(self):
+    taskManager = TaskManager(period=self.tPeriod())
+    taskManager.addTask(self.tasks[0])
+    taskManager.addTask(self.tasks[1])
+    self.assertEqual(len(taskManager.tasks), 2)
+    taskManager.removeTask(self.tasks[1])
+    self.assertEqual(len(taskManager.tasks), 1)
+
   def test_numberOfConflicts(self):
     taskManager = TaskManager(period=self.tPeriod())
     taskManager.addTasks(self.tasks)
@@ -121,21 +129,6 @@ class TestTaskManager(TestCase):
     with self.assertRaises(LateDeadlineException):
       taskManager.addTask(task)
 
-  def test_assigningWorkers(self):
-    workers = [
-      Worker('w1', 2),
-      Worker('w2', 2)
-    ]
-    taskManager = TaskManager(self.tPeriod())
-    taskManager.addTasks(self.tasks)
-    taskManager.addWorkers(workers)
-    taskManager.assignTasksToWorkers()
-    self.assertEqual(self.tasks[0], workers[0].assignedTasks[0])
-    self.assertEqual(self.tasks[1], workers[1].assignedTasks[0])
-    self.assertEqual(self.tasks[2], workers[0].assignedTasks[1])
-    self.assertEqual(self.tasks[3], workers[1].assignedTasks[1])
-
-
   def test_addWorkersAfterInitialAssignment(self):
     workers = [
       Worker('w1', 1),
@@ -147,7 +140,6 @@ class TestTaskManager(TestCase):
     taskManager.assignTasksToWorkers()
     self.assertEqual(self.tasks[0], workers[0].assignedTasks[0])
     self.assertEqual(self.tasks[1], workers[1].assignedTasks[0])
-
 
   def test_assignTasksToWorkers(self):
     initialWorkers = [
@@ -175,3 +167,19 @@ class TestTaskManager(TestCase):
     self.assertEqual(self.tasks[3], extraWorkers[0].assignedTasks[0]) #check w4
     self.assertEqual(self.tasks[4], extraWorkers[1].assignedTasks[0]) #check w5
     self.assertEqual(taskManager.unassignedTasks[0], self.tasks[5])
+
+  def test_removeTaskAfterAssigningTasksToWorkers(self):
+    workers = [
+      Worker("weee1", 1),
+      Worker("weee2", 1),
+      Worker("weee3", 1)
+    ]
+    taskManager = TaskManager(period=self.tPeriod())
+    taskManager.addTask(self.tasks[0])
+    taskManager.addTask(self.tasks[1])
+    taskManager.addWorkers(workers)
+    taskManager.assignTasksToWorkers()
+    taskManager.removeTask(self.tasks[0])
+    self.assertEqual(len(workers[0].assignedTasks), 0)
+    taskManager.removeTask(taskID=self.tasks[1].taskID)
+    self.assertEqual(len(workers[1].assignedTasks), 0)

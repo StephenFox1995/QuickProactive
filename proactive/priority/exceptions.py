@@ -6,3 +6,6 @@ class MaxTaskLimitReachedException(Exception):
 
 class UnassignableTaskException(Exception):
   pass
+
+class UnkownTaskException(Exception):
+  pass
