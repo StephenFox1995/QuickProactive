@@ -28,6 +28,9 @@ class PriorityProcess(object):
     self.__scheduler = BackgroundScheduler()
     self.__orderStore = []
 
+  @property
+  def taskManager(self):
+    return self._taskManager
 
   @property
   def tasks(self):

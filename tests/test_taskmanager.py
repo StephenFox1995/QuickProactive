@@ -4,7 +4,7 @@ from unittest import TestCase
 from datetime import datetime
 from proactive.priority.taskmanager import TaskManager
 from proactive.priority.taskunit import TaskUnit
-from proactive.priority.exceptions import LateDeadlineException
+from proactive.priority.exceptions import LateDeadlineException, UnkownTaskException
 from proactive.priority.worker import Worker
 from .testutil import tHour
 
@@ -179,7 +179,14 @@ class TestTaskManager(TestCase):
     taskManager.addTask(self.tasks[1])
     taskManager.addWorkers(workers)
     taskManager.assignTasksToWorkers()
+
     taskManager.removeTask(self.tasks[0])
     self.assertEqual(len(workers[0].assignedTasks), 0)
-    taskManager.removeTask(taskID=self.tasks[1].taskID)
+
+    taskManager.removeTask(taskID=self.tasks[1].taskID) # test with id too.
     self.assertEqual(len(workers[1].assignedTasks), 0)
+
+  def test_removeUnkownTask(self):
+    taskManager = TaskManager(period=self.tPeriod())
+    with self.assertRaises(UnkownTaskException):
+      taskManager.removeTask(taskID="unkowntaskid")

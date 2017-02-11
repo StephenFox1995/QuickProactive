@@ -24,6 +24,6 @@ if __name__ == "__main__":
     loader.loadTestsFromTestCase(TestWorker),
     loader.loadTestsFromTestCase(TestWorkerQueue)
   ])
-  runner = TextTestRunner(verbosity=2)
+  runner = TextTestRunner(verbosity=4)
   runner.run(suite)
 

@@ -22,7 +22,7 @@ class Worker(object):
     if task in self._assignedTasks:
       self._assignedTasks.remove(task)
     else:
-      raise UnkownTaskException
+      raise UnkownTaskException("Unkown task")
 
   def canAssignTask(self):
     return not(len(self._assignedTasks) >= self._multitask)

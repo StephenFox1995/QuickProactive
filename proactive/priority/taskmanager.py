@@ -121,7 +121,7 @@ class TaskManager(object):
     if taskID:
       task = self._getTask(taskID)
       if task is None:
-        return
+        raise UnkownTaskException
     self._intervalTree.discardi(task.release, task.deadline, task.taskID)
     if task in self._assignedTasks:
       self._assignedTasks.remove(task)
@@ -129,6 +129,7 @@ class TaskManager(object):
     for w in self._workers: # ask whatever worker has the task to unassign it.
       try:
         w.unassignTask(task)
+        return # no exception thrown. return.
       except UnkownTaskException:
         pass
 
