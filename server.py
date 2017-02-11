@@ -1,6 +1,7 @@
 from flask import Flask, request, Response, jsonify
 from flask_cors import CORS, cross_origin
 from proactive.config import Configuration
+from proactive.priority.exceptions import UnkownTaskException
 from proactive.priority.priorityservice import PriorityService
 from proactive.dbs import BusinessDB, OrderDB
 from proactive.priority.worker import Worker
@@ -122,7 +123,7 @@ def priority():
   except KeyError:
     return jsonify({
       "status": "failed",
-      "reason": "No tasks exist for id %s" % processID
+      "reason": "No process exist for id %s" % processID
     }), 500
 
 
@@ -151,17 +152,45 @@ def addWorkers():
       process = priorityService.process(processID=businessID)
       process.addWorkers(workerInstances)
       return jsonify({
-      "status": "Success",
-    })
+        "status": "Success",
+      })
     except KeyError:
       return jsonify({
         "status": "failed",
-        "reason": "No tasks exist for id %s" % businessID
+        "reason": "No process exist for id %s" % businessID
       }), 500
   else:
     pass
 
+
+@app.route("/removetask", methods=["POST"])
+@cross_origin()
+def removeTask():
+  """
+  {
+    "business": {
+      "id": "58876b6905733be97fb526ad"
+    },
+    "taskID": "487487942789"
+  }
+  """
+  _json = request.get_json()
+  if _json:
+    businessID = _json["business"]["id"]
+    taskID = _json["taskID"]
+    try:
+      process = priorityService.process(processID=businessID)
+      taskManager = process.taskManager
+      taskManager.removeTask(taskID=taskID)
+      return jsonify({
+        "status": "Success",
+      })
+    except (KeyError, UnkownTaskException) as e:
+      return jsonify({
+        "status": "Failed",
+        "reason": e.message
+      }), 500
+
+
 if __name__ == "__main__":
   app.run(host='0.0.0.0', port=6566)
-
-
