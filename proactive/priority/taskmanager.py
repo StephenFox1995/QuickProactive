@@ -71,7 +71,7 @@ class TaskManager(object):
       self._end = period[1]
     else:
       raise TypeError(
-        "period[0] and period[1] should be type<'datetime'>."
+        "period[0] and period[1] should be %s" % datetime
       )
 
   @property
@@ -89,6 +89,10 @@ class TaskManager(object):
       The tasks are return in no particular order.
     """
     return copy(self._tasks)
+
+  @property
+  def workers(self):
+    return copy(self._workers)
 
   def addTask(self, task):
     if task.deadline > self._end:
@@ -184,14 +188,13 @@ class TaskManager(object):
       self._workers.append(worker)
     else:
       raise TypeError(
-        "Cannot add worker type %s, should be type<'Worker'>" % type(worker)
+        "Cannot add worker type %s, should be %s" % Worker
       )
 
   def addWorkers(self, workers):
     for w in workers:
       self.addWorker(w)
 
-# TODO: rememeber to remove task from interval tree too.
   def assignTasksToWorkers(self):
     tasksToPutBackIntoQueue = []
     for task in self._tasksQ:

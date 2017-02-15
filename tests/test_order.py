@@ -20,7 +20,8 @@ class TestOrder(TestCase):
       processing=self.processing,
       customerCoordinates=self.customerCoordinates,
       cost=self.cost,
-      createdAt=self.createdAt
+      createdAt=self.createdAt,
+      products=[]
     )
     self.assertEqual(order.orderID, self.orderID)
     self.assertEqual(order.status, self.status)

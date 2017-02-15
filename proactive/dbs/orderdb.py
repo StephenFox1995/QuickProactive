@@ -32,7 +32,8 @@ class OrderDB(Database):
           "cost": 1,
           "coordinates": 1,
           "processing": 1,
-          "status": 1
+          "status": 1,
+          "products": 1
         }
       }
     ]

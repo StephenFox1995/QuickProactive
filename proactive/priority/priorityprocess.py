@@ -60,7 +60,8 @@ class PriorityProcess(object):
         processing=order["processing"],
         customerCoordinates=order["coordinates"],
         createdAt=order["createdAt"],
-        cost=order["cost"]
+        cost=order["cost"],
+        products=order["products"]
       )
       self.__orderStore.append(orderObj) # add to internal storage.
       deadline = self._customerArrivalTime(orderObj.customerCoordinates)

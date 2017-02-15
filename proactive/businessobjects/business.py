@@ -7,7 +7,7 @@ class Period(object):
       self.end = end
     else:
       raise TypeError(
-        "begin and end type should be type<'datetime> not %s %s" % (type(begin), type(end))
+        "begin and end type should be %s not %s %s" % (datetime, type(begin), type(end))
       )
 
   @staticmethod
@@ -34,13 +34,10 @@ class Business(object):
     self._address = address
     self._contactNumber = contactNumber
     self._coordinates = coordinates
-    if isinstance(period["begin"], float) or isinstance(period["end"], float):
-      (begin, end) = Period.floatsToDatetimes(period["begin"], period["end"])
-      self._period = Period(begin, end)
-    else:
-      raise TypeError(
-        "period begin and end attributes should be type<'float'>"
-      )
+    period["begin"] = float(period["begin"])
+    period["end"] = float(period["end"])
+    (begin, end) = Period.floatsToDatetimes(period["begin"], period["end"])
+    self._period = Period(begin, end)
 
   @property
   def businessID(self):

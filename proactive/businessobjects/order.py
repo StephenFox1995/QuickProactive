@@ -5,18 +5,14 @@ class Order(DataItem):
     UNPROCESSED = "unprocessed"
     PROCESSED = "processed"
 
-  def __init__(self, orderID, status, processing, customerCoordinates, createdAt, cost):
-    """
-      @param orderID:(str) The id of the order.
-      @param profit:(double) The profit from this order.
-      @param customerCoordinates:(object) Contains coordinates such as {"lat": x, "lng": y}
-    """
+  def __init__(self, orderID, status, processing, customerCoordinates, createdAt, cost, products):
     self._orderID = orderID
     self._status = status
     self._processing = processing
     self._customerCoordinates = customerCoordinates
     self._cost = cost
     self._createdAt = createdAt
+    self._products = products
 
   @property
   def orderID(self):
@@ -41,6 +37,10 @@ class Order(DataItem):
   @property
   def createdAt(self):
     return self._createdAt
+
+  @property
+  def products(self):
+    return self._products
 
   def asDict(self):
     return

@@ -191,6 +191,23 @@ def removeTask():
         "reason": e.message
       }), 500
 
+@app.route("/workers", methods=["GET"])
+@cross_origin()
+def getWorkers():
+  try:
+    businessID = request.args["id"]
+    process = priorityService.process(processID=businessID)
+    taskManager = process.taskManager
+    workers = taskManager.workers
+    response = {"workers": []}
+    for w in workers:
+      response["workers"].append({"id": str(w)})
+    return jsonify(response)
+  except KeyError:
+    return jsonify({
+      "status": "Failed",
+      "reason": "No process exist for id %s" % businessID
+    }), 500
 
 if __name__ == "__main__":
   app.run(host='0.0.0.0', port=6566)

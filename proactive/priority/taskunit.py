@@ -1,6 +1,7 @@
 from datetime import datetime
 from dateutil import parser as dateparser
 from proactive.utils import timeutil
+from proactive.businessobjects.dataitem import DataItem
 from .priority import Priority
 
 
@@ -35,7 +36,15 @@ class TaskUnit(Priority):
     self._processing = processing
     self._profit = profit
     self._taskID = taskID
-    self._data = data
+    if isinstance(data, DataItem):
+      self._data = data
+    elif not data:
+      pass
+    else:
+      raise TypeError(
+        "data must be of type %s" % DataItem
+      )
+
     self._assignedWorker = None
     if isinstance(deadline, datetime): #check deadline type
       self._deadline = deadline

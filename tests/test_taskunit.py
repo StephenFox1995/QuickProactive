@@ -1,5 +1,6 @@
 from datetime import datetime
 from unittest import TestCase
+from proactive.businessobjects.dataitem import DataItem
 from proactive.priority.taskunit import TaskUnit
 from proactive.utils import timeutil
 from proactive.priority import release
@@ -23,7 +24,7 @@ class TestTaskUnit(TestCase):
 
 
   def test_init(self):
-    data = [1, 2, 3, 4]
+    data = DataItem()
     taskUnit = TaskUnit(
       createdAt=self.createdAt,
       deadline=self.deadline,
