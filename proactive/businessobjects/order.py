@@ -5,14 +5,16 @@ class Order(DataItem):
     UNPROCESSED = "unprocessed"
     PROCESSED = "processed"
 
-  def __init__(self, orderID, status, processing, customerCoordinates, createdAt, cost, products):
+  def __init__(self, orderID, status, processing, customerCoordinates, travelMode, createdAt, cost, products):
     self._orderID = orderID
     self._status = status
     self._processing = processing
     self._customerCoordinates = customerCoordinates
+    self._travelMode = travelMode
     self._cost = cost
     self._createdAt = createdAt
     self._products = products
+
 
   @property
   def orderID(self):
@@ -29,6 +31,10 @@ class Order(DataItem):
   @property
   def customerCoordinates(self):
     return self._customerCoordinates
+
+  @property
+  def travelMode(self):
+    return self._travelMode
 
   @property
   def cost(self):

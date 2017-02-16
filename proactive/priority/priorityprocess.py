@@ -59,12 +59,13 @@ class PriorityProcess(object):
         status=order["status"],
         processing=order["processing"],
         customerCoordinates=order["coordinates"],
+        travelMode=order["travelMode"],
         createdAt=order["createdAt"],
         cost=order["cost"],
         products=order["products"]
       )
       self.__orderStore.append(orderObj) # add to internal storage.
-      deadline = self._customerArrivalTime(orderObj.customerCoordinates)
+      deadline = self._customerArrivalTime(orderObj.customerCoordinates, orderObj.travelMode)
       task = TaskUnit(
         createdAt=orderObj.createdAt,
         deadline=deadline,
@@ -78,11 +79,12 @@ class PriorityProcess(object):
   def __readUnprocessedOrders(self, excluding):
     return self._ordersDBConn.read(self._business.businessID, excluding)
 
-  def _customerArrivalTime(self, customerCoordinates):
+  def _customerArrivalTime(self, customerCoordinates, travelMode):
     return self._travel.find(
       self._businessCoordinates,
       customerCoordinates,
       Metric.DURATION,
+      mode=travelMode,
       measure="value"
     )
 

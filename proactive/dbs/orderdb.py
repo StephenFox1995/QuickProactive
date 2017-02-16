@@ -29,6 +29,7 @@ class OrderDB(Database):
           "createdAt": 1,
           "businessID": 1,
           "userID": 1,
+          "travelMode": 1,
           "cost": 1,
           "coordinates": 1,
           "processing": 1,
