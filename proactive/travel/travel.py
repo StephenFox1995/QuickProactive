@@ -73,12 +73,12 @@ class Travel(object):
       @param measure:(string) Whether to return a text based measure or a correct
         measure according to the value. E.g text=4.32km, value=4.25
     """
-    coords = "%s,%s" % (orig, dest) # used as key for cache.
+    key = "orig:%s,dest:%smode:%s" % (orig, dest, mode)
     # Send request.
     try:
-      response = self.__responseCache[coords]
+      response = self.__responseCache[key]
     except KeyError:
       response = GmapsResponse(self._gmapsClient.distance_matrix(orig, dest, mode=mode))
-      self.__responseCache[coords] = response
+      self.__responseCache[key] = response
 
     return response.matrixInfo(metric, measure)
