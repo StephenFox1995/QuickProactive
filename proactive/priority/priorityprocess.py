@@ -89,10 +89,17 @@ class PriorityProcess(object):
     )
 
   def taskSetState(self):
-    state = {}
+    state = {
+      "assignedTasks": {},
+      "unassignedTasks": {},
+      "conflicts": {
+        "sets": [],
+        "utilization": []
+      },
+    }
     conflicts = self._taskManager.taskSet.findConflicts()
-    state["conflicts"] = conflicts.asDict()
-    # state["workersNeeded"] = self._taskManager.workersNeeded
+    state["conflicts"]["sets"] = conflicts.asDict()
+    state["conflicts"]["utilization"] = self._taskManager.workersNeededForConflicts()
     state["assignedTasks"] = map(lambda t: t.asDict(), self._taskManager.assignedTasks)
     state["unassignedTasks"] = map(lambda t: t.asDict(), self._taskManager.unassignedTasks)
     return state

@@ -4,7 +4,7 @@ from unittest import TestCase
 from datetime import datetime
 from proactive.priority.taskmanager import TaskManager
 from proactive.priority.taskunit import TaskUnit
-from proactive.priority.exceptions import LateDeadlineException, UnkownTaskException
+from proactive.priority.exceptions import LateDeadlineException
 from proactive.priority.worker import Worker
 from .testutil import tHour
 
@@ -90,24 +90,6 @@ class TestTaskManager(TestCase):
     self.assertEqual(len(taskManager.taskSet.tasks), 1)
     taskManager.finishTask(self.tasks[1].taskID)
     self.assertEqual(len(taskManager.taskSet.tasks), 0)
-
-  def test_numberOfConflicts(self):
-    taskManager = TaskManager(period=self.tPeriod())
-    taskManager.addTasks(self.tasks)
-    conflicts = taskManager.taskSet.findConflicts().allGreaterThan(2)
-    self.assertEqual(len(conflicts), 1)
-
-  def test_numberOfNonConflicts(self):
-    taskManager = TaskManager(period=self.tPeriod())
-    taskManager.addTasks(self.tasks)
-    nonConflicts = taskManager.taskSet.findNonConflicts()
-    self.assertEqual(len(nonConflicts), 2)
-
-  def test_highestWorkersNeeded(self):
-    taskManager = TaskManager(period=self.tPeriod())
-    taskManager.addTasks(self.tasks)
-    workersNeeded = taskManager.highestNumberOfWorkersNeeded(multitask=2)
-    self.assertEqual(workersNeeded, 2)
 
   def test_workersNeeded(self):
     taskManager = TaskManager(period=self.tPeriod())
@@ -219,3 +201,13 @@ class TestTaskManager(TestCase):
     self.assertEqual(len(workers[1].assignedTasks), 0)
     self.assertEqual(len(taskManager.workers), 3)
 
+  def test_workersNeededForConflicts(self):
+    workers = [
+      Worker("weee1", 1),
+      Worker("weee2", 1),
+      Worker("weee3", 1)
+    ]
+    taskManager = TaskManager(period=self.tPeriod())
+    taskManager.addWorkers(workers)
+    taskManager.addTasks(self.tasks)
+    taskManager.workersNeededForConflicts()

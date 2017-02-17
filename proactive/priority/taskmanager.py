@@ -1,6 +1,10 @@
 from datetime import datetime
 import weakref
-from .exceptions import LateDeadlineException, UnassignableTaskException, UnkownTaskException, DuplicateTaskException
+from .exceptions import (
+  LateDeadlineException,
+  UnassignableTaskException,
+  UnkownTaskException,
+  DuplicateTaskException)
 from .workerqueue import WorkerQueue
 from .worker import Worker
 from .taskset import TaskSet
@@ -88,15 +92,29 @@ class TaskManager(object):
     except UnkownTaskException:
       pass
 
-  def highestNumberOfWorkersNeeded(self, multitask=1):
-    """
-      Calculates the highest number of employees needed
-      to service the tasks set.
-      @param multitask:(int) The maximum amount of tasks a single
-        worker can complete at any given time simultaneously.
-    """
-    conflict = self._taskSet.findConflicts().max()
-    return self.workersNeeded(len(conflict), multitask)
+
+  def _workersAvailableInPeriod(self, begin, end):
+    availableWorkers = []
+    for worker in self._workers:
+      if worker.availableInPeriod(begin, end):
+        availableWorkers.append(worker)
+    return availableWorkers
+
+
+  def workersNeededForConflicts(self):
+    conflicts = self._taskSet.findConflicts().all()
+    dataset = {
+      "conflicts": []
+    }
+    for conflict in conflicts:
+      workersNeeded = self.workersNeeded(len(conflict), 2)
+      data = {
+        "workersNeeded": workersNeeded,
+        "begin": conflict.period.begin.isoformat(),
+        "end": conflict.period.end.isoformat()
+        }
+      dataset["conflicts"].append(data)
+    return dataset
 
 
   def workersNeeded(self, k, m):

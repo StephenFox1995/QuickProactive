@@ -9,6 +9,7 @@ from .test_taskmanager import TestTaskManager
 from .test_business import TestPeriod
 from .test_worker import TestWorker
 from .test_workerqueue import TestWorkerQueue
+from .test_taskset import TestTaskSet
 
 if __name__ == "__main__":
   loader = TestLoader()
@@ -22,7 +23,8 @@ if __name__ == "__main__":
     loader.loadTestsFromTestCase(TestTaskManager),
     loader.loadTestsFromTestCase(TestPeriod),
     loader.loadTestsFromTestCase(TestWorker),
-    loader.loadTestsFromTestCase(TestWorkerQueue)
+    loader.loadTestsFromTestCase(TestWorkerQueue),
+    loader.loadTestsFromTestCase(TestTaskSet)
   ])
   runner = TextTestRunner(verbosity=4)
   runner.run(suite)
