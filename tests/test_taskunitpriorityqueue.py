@@ -10,6 +10,8 @@ class TestTaskUnitPriorityQueue(TestCase):
     self._deadline = 600 # 10 mins
     self._profit = 2.00
     self._processing = 300
+    self._taskID = "test1"
+
 
   def test_count(self):
     items = [
@@ -17,12 +19,14 @@ class TestTaskUnitPriorityQueue(TestCase):
         createdAt=self._createdAt,
         deadline=self._deadline,
         profit=self._profit,
-        processing=self._processing
+        processing=self._processing,
+        taskID=self._taskID
       )
     ]
     pQueue = TaskUnitPriorityQueue(items)
     expectedCount = 1
     self.assertEqual(pQueue.count(), expectedCount)
+
 
   def test_pushToEmptyQueue(self):
     items = [
@@ -30,7 +34,8 @@ class TestTaskUnitPriorityQueue(TestCase):
         createdAt=self._createdAt,
         deadline=self._deadline,
         profit=self._profit,
-        processing=self._processing
+        processing=self._processing,
+        taskID=self._taskID
       )
     ]
     pQueue = TaskUnitPriorityQueue()
@@ -44,7 +49,8 @@ class TestTaskUnitPriorityQueue(TestCase):
         createdAt=self._createdAt,
         deadline=self._deadline,
         profit=self._profit,
-        processing=self._processing
+        processing=self._processing,
+        taskID=self._taskID
       )
     ]
     pQueue = TaskUnitPriorityQueue(items)
@@ -53,7 +59,8 @@ class TestTaskUnitPriorityQueue(TestCase):
         createdAt=self._createdAt,
         deadline=100,
         profit=200,
-        processing=20
+        processing=20,
+        taskID=self._taskID
       )
     )
     expectedCount = 2
@@ -64,7 +71,8 @@ class TestTaskUnitPriorityQueue(TestCase):
       createdAt=self._createdAt,
       deadline=self._deadline,
       profit=self._profit,
-      processing=self._processing
+      processing=self._processing,
+      taskID=self._taskID
     )
     pQueue = TaskUnitPriorityQueue()
     pQueue.push(item)
@@ -77,13 +85,15 @@ class TestTaskUnitPriorityQueue(TestCase):
         createdAt=self._createdAt,
         deadline=self._deadline,
         profit=self._profit,
-        processing=self._processing
+        processing=self._processing,
+        taskID=self._taskID
       ),
       TaskUnit(
         createdAt=self._createdAt,
         deadline=self._deadline,
         profit=self._profit,
-        processing=self._processing
+        processing=self._processing,
+        taskID=self._taskID
       )
     ]
     pQueue = TaskUnitPriorityQueue()
@@ -95,7 +105,8 @@ class TestTaskUnitPriorityQueue(TestCase):
       createdAt=self._createdAt,
       deadline=self._deadline,
       profit=self._profit,
-      processing=self._processing
+      processing=self._processing,
+      taskID=self._taskID
     )
     with self.assertRaises(TypeError):
       _ = TaskUnitPriorityQueue(item)
@@ -116,13 +127,15 @@ class TestTaskUnitPriorityQueue(TestCase):
         createdAt=self._createdAt,
         deadline=deadline1,
         profit=self._profit,
-        processing=processing
+        processing=processing,
+        taskID=self._taskID
       ),
       TaskUnit(
         createdAt=self._createdAt,
         deadline=deadline2,
         profit=self._profit,
-        processing=processing
+        processing=processing,
+        taskID='test2'
       )
     ]
     pQueue = TaskUnitPriorityQueue(items)
@@ -131,5 +144,35 @@ class TestTaskUnitPriorityQueue(TestCase):
     self.assertEqual(pQueue.pop(), expectedFirstPop)
     self.assertEqual(pQueue.pop(), expectedSecondPop)
 
+  def test_remove(self):
+    item = TaskUnit(
+      createdAt=self._createdAt,
+      deadline=self._deadline,
+      profit=self._profit,
+      processing=self._processing,
+      taskID=self._taskID
+    )
+    pQueue = TaskUnitPriorityQueue()
+    pQueue.push(item)
+    pQueue.remove(item.taskID)
+    self.assertEqual(pQueue.count(), 0)
 
-
+  def test_contains(self):
+    item = TaskUnit(
+      createdAt=self._createdAt,
+      deadline=self._deadline,
+      profit=self._profit,
+      processing=self._processing,
+      taskID=self._taskID
+    )
+    pQueue = TaskUnitPriorityQueue()
+    # test contains with push pop
+    pQueue.push(item)
+    self.assertTrue(pQueue.contains(item.taskID))
+    pQueue.pop()
+    self.assertFalse(pQueue.contains(item.taskID))
+    # test contains with push remove
+    pQueue.push(item)
+    self.assertTrue(pQueue.contains(item.taskID))
+    pQueue.remove(item.taskID)
+    self.assertFalse(pQueue.contains(item.taskID))

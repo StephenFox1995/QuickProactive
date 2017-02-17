@@ -181,7 +181,7 @@ def removeTask():
     try:
       process = priorityService.process(processID=businessID)
       taskManager = process.taskManager
-      taskManager.removeTask(taskID=taskID)
+      taskManager.finishTask(taskID)
       return jsonify({
         "status": "Success",
       })
@@ -190,6 +190,7 @@ def removeTask():
         "status": "Failed",
         "reason": e.message
       }), 500
+
 
 @app.route("/workers", methods=["GET"])
 @cross_origin()
@@ -208,6 +209,7 @@ def getWorkers():
       "status": "Failed",
       "reason": "No process exist for id %s" % businessID
     }), 500
+
 
 if __name__ == "__main__":
   app.run(host='0.0.0.0', port=6566)

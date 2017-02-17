@@ -9,3 +9,6 @@ class UnassignableTaskException(Exception):
 
 class UnkownTaskException(Exception):
   pass
+
+class DuplicateTaskException(Exception): # when same task is added to task set twice.
+  pass

@@ -6,7 +6,7 @@ from .priority import Priority
 
 
 class TaskUnit(Priority):
-  def __init__(self, createdAt, deadline, profit, processing, release=None, taskID=None, data=None):
+  def __init__(self, createdAt, deadline, profit, processing, taskID, release=None, data=None):
     """
       A task unit is a schedulable piece of work that needs to be completed
       before a deadline.

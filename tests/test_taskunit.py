@@ -19,7 +19,8 @@ class TestTaskUnit(TestCase):
       createdAt=self.createdAt,
       deadline=self.deadline,
       profit=self.profit,
-      processing=self.processing
+      processing=self.processing,
+      taskID="test1"
     )
 
 

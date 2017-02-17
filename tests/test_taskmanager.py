@@ -66,7 +66,7 @@ class TestTaskManager(TestCase):
         profit=0,
         processing=0,
         release=tHour(16, 25),
-        taskID="t6"
+        taskID="t7"
       )
     ]
 
@@ -79,26 +79,28 @@ class TestTaskManager(TestCase):
   def test_addTask(self):
     taskManager = TaskManager(period=self.tPeriod())
     taskManager.addTask(self.tasks[0])
-    self.assertEqual(taskManager.tasks[0], self.tasks[0])
+    self.assertEqual(taskManager.taskSet.tasks[0], self.tasks[0])
 
-  def test_removeTask(self):
+  def test_finishTasks(self):
     taskManager = TaskManager(period=self.tPeriod())
     taskManager.addTask(self.tasks[0])
     taskManager.addTask(self.tasks[1])
-    self.assertEqual(len(taskManager.tasks), 2)
-    taskManager.removeTask(self.tasks[1])
-    self.assertEqual(len(taskManager.tasks), 1)
+    self.assertEqual(len(taskManager.taskSet.tasks), 2)
+    taskManager.finishTask(self.tasks[0].taskID)
+    self.assertEqual(len(taskManager.taskSet.tasks), 1)
+    taskManager.finishTask(self.tasks[1].taskID)
+    self.assertEqual(len(taskManager.taskSet.tasks), 0)
 
   def test_numberOfConflicts(self):
     taskManager = TaskManager(period=self.tPeriod())
     taskManager.addTasks(self.tasks)
-    conflicts = taskManager.findConflicts().allGreaterThan(2)
+    conflicts = taskManager.taskSet.findConflicts().allGreaterThan(2)
     self.assertEqual(len(conflicts), 1)
 
   def test_numberOfNonConflicts(self):
     taskManager = TaskManager(period=self.tPeriod())
     taskManager.addTasks(self.tasks)
-    nonConflicts = taskManager.findNonConflicts()
+    nonConflicts = taskManager.taskSet.findNonConflicts()
     self.assertEqual(len(nonConflicts), 2)
 
   def test_highestWorkersNeeded(self):
@@ -128,6 +130,21 @@ class TestTaskManager(TestCase):
     taskManager = TaskManager(period=self.tPeriod())
     with self.assertRaises(LateDeadlineException):
       taskManager.addTask(task)
+
+  def test_addWorkers(self):
+    workers = [
+      Worker('w1', 1),
+      Worker('w2', 1)
+    ]
+    taskManager = TaskManager(self.tPeriod())
+    taskManager.addWorkers(workers)
+    self.assertEqual(len(taskManager.workers), 2)
+
+  def test_addWorker(self):
+    worker = Worker('w1', 1)
+    taskManager = TaskManager(self.tPeriod())
+    taskManager.addWorker(worker)
+    self.assertEqual(len(taskManager.workers), 1)
 
   def test_addWorkersAfterInitialAssignment(self):
     workers = [
@@ -168,7 +185,21 @@ class TestTaskManager(TestCase):
     self.assertEqual(self.tasks[4], extraWorkers[1].assignedTasks[0]) #check w5
     self.assertEqual(taskManager.unassignedTasks[0], self.tasks[5])
 
-  def test_removeTaskAfterAssigningTasksToWorkers(self):
+  def test_assignedTasksCountAndUnassignedTasksCount(self):
+    workers = [
+      Worker("weee1", 1),
+      Worker("weee2", 1),
+    ]
+    taskManager = TaskManager(period=self.tPeriod())
+    taskManager.addTask(self.tasks[0])
+    taskManager.addTask(self.tasks[1])
+    taskManager.addTask(self.tasks[2])
+    taskManager.addWorkers(workers)
+    taskManager.assignTasksToWorkers()
+    self.assertEqual(len(taskManager.assignedTasks), 2)
+    self.assertEqual(len(taskManager.unassignedTasks), 1)
+
+  def test_finishTasksAfterAssigningTasksToWorkers(self):
     workers = [
       Worker("weee1", 1),
       Worker("weee2", 1),
@@ -179,14 +210,12 @@ class TestTaskManager(TestCase):
     taskManager.addTask(self.tasks[1])
     taskManager.addWorkers(workers)
     taskManager.assignTasksToWorkers()
-
-    taskManager.removeTask(self.tasks[0])
+    self.assertEqual(len(taskManager.workers), 3)
+    taskManager.finishTask(self.tasks[0].taskID)
     self.assertEqual(len(workers[0].assignedTasks), 0)
+    self.assertEqual(len(taskManager.workers), 3)
 
-    taskManager.removeTask(taskID=self.tasks[1].taskID) # test with id too.
+    taskManager.finishTask(self.tasks[1].taskID) # test with id too.
     self.assertEqual(len(workers[1].assignedTasks), 0)
+    self.assertEqual(len(taskManager.workers), 3)
 
-  def test_removeUnkownTask(self):
-    taskManager = TaskManager(period=self.tPeriod())
-    with self.assertRaises(UnkownTaskException):
-      taskManager.removeTask(taskID="unkowntaskid")
