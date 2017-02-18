@@ -30,6 +30,18 @@ class WorkerQueue(object):
   def size(self):
     return self._queue.qsize()
 
+
+  def availableWorkersDuringPeriod(self, begin, end):
+    """
+      Finds all available workers within a given period.
+    """
+    availableWorkers = []
+    for worker in self._workers:
+      if worker.availableInPeriod(begin, end):
+        availableWorkers.append(worker)
+    return availableWorkers
+
+
   def maxTasksAchievable(self):
     """
       Calculated the max tasks that can be completed by the

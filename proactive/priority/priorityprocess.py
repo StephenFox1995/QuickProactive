@@ -71,7 +71,8 @@ class PriorityProcess(object):
         deadline=deadline,
         profit=orderObj.cost,
         processing=orderObj.processing,
-        taskID=orderObj.orderID
+        taskID=orderObj.orderID,
+        data=orderObj
       )
       self._taskManager.addTask(task)
     self._taskManager.assignTasksToWorkers()

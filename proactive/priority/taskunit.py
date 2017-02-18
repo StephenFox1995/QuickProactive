@@ -12,7 +12,7 @@ class TaskUnit(Priority):
       before a deadline.
 
       A TaskUnit is composed of the following properties:
-        t_unit = (c, r,d,p,w)
+        t_unit = (c, r, d, p, w)
         c - createdAt
         r - release time
         d - deadline
@@ -36,6 +36,7 @@ class TaskUnit(Priority):
     self._processing = processing
     self._profit = profit
     self._taskID = taskID
+    self._data = None
     if isinstance(data, DataItem):
       self._data = data
     elif not data:
@@ -131,13 +132,18 @@ class TaskUnit(Priority):
     workerID = None
     if self._assignedWorker:
       workerID = self._assignedWorker.workerID
-
-    return {
+    json = {
       "id": self.taskID,
       "releaseISO": self._releaseISO,
       "deadlineISO": self._deadlineISO,
       "profit": self._profit,
       "processing": self._processing,
       "createdAtISO": self._createdAtISO,
-      "assignedWorkerID": workerID
+      "assignedWorkerID": workerID,
     }
+    if self._data and hasattr(self._data, 'asDict'):
+      json["data"] = self._data.asDict()
+    return json
+
+  def __str__(self):
+    return self._taskID

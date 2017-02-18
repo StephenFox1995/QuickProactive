@@ -49,7 +49,7 @@ class Order(DataItem):
     return self._products
 
   def asDict(self):
-    return
+    return self.products
 
 
 

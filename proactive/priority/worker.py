@@ -1,12 +1,13 @@
 from .exceptions import MaxTaskLimitReachedException, UnkownTaskException
 
 class Worker(object):
-  def __init__(self, workerID, multitask):
+  def __init__(self, workerID, begin, end, multitask):
     self._id = workerID
+    self._begin = begin
+    self._end = end
     self._multitask = multitask
     self._assignedTasks = []
-    self._begin = None
-    self._end = None
+
 
   @property
   def workerID(self):
@@ -23,11 +24,11 @@ class Worker(object):
     return self._multitask
 
 
-  def unassignTask(self, task):
-    if task in self._assignedTasks:
-      self._assignedTasks.remove(task)
-    else:
-      raise UnkownTaskException("Unkown task")
+  def unassignTask(self, taskID):
+    for task in self._assignedTasks:
+      if task.taskID == taskID:
+        return self._assignedTasks.remove(task)
+    raise UnkownTaskException("Unkown task")
 
 
   def canAssignTask(self):
@@ -44,7 +45,7 @@ class Worker(object):
 
 
   def availableInPeriod(self, begin, end):
-    return self._begin >= begin and self._end <= end
+    return begin >= self._begin and end <= self._end
 
 
   def __str__(self):

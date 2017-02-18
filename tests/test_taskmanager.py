@@ -115,23 +115,23 @@ class TestTaskManager(TestCase):
 
   def test_addWorkers(self):
     workers = [
-      Worker('w1', 1),
-      Worker('w2', 1)
+      Worker(workerID="W1", begin=tHour(0, 00), end=tHour(23, 59), multitask=1),
+      Worker(workerID="W2", begin=tHour(0, 00), end=tHour(23, 59), multitask=1)
     ]
     taskManager = TaskManager(self.tPeriod())
     taskManager.addWorkers(workers)
     self.assertEqual(len(taskManager.workers), 2)
 
   def test_addWorker(self):
-    worker = Worker('w1', 1)
+    worker = Worker(workerID="W1", begin=tHour(0, 00), end=tHour(23, 59), multitask=1)
     taskManager = TaskManager(self.tPeriod())
     taskManager.addWorker(worker)
     self.assertEqual(len(taskManager.workers), 1)
 
   def test_addWorkersAfterInitialAssignment(self):
     workers = [
-      Worker('w1', 1),
-      Worker('w2', 1)
+      Worker(workerID="W1", begin=tHour(0, 00), end=tHour(23, 59), multitask=1),
+      Worker(workerID="W2", begin=tHour(0, 00), end=tHour(23, 59), multitask=1)
     ]
     taskManager = TaskManager(self.tPeriod())
     taskManager.addTasks(self.tasks)
@@ -142,13 +142,13 @@ class TestTaskManager(TestCase):
 
   def test_assignTasksToWorkers(self):
     initialWorkers = [
-      Worker("weee1", 1),
-      Worker("weee2", 1),
-      Worker("weee3", 1)
+      Worker(workerID="W1", begin=tHour(0, 00), end=tHour(23, 59), multitask=1),
+      Worker(workerID="W2", begin=tHour(0, 00), end=tHour(23, 59), multitask=1),
+      Worker(workerID="W3", begin=tHour(0, 00), end=tHour(23, 59), multitask=1)
     ]
     extraWorkers = [
-      Worker("weee4", 1),
-      Worker("weee5", 1)
+      Worker(workerID="W4", begin=tHour(0, 00), end=tHour(23, 59), multitask=1),
+      Worker(workerID="W1", begin=tHour(0, 00), end=tHour(23, 59), multitask=1)
     ]
     taskManager = TaskManager(self.tPeriod())
     taskManager.addTasks(self.tasks)
@@ -169,8 +169,8 @@ class TestTaskManager(TestCase):
 
   def test_assignedTasksCountAndUnassignedTasksCount(self):
     workers = [
-      Worker("weee1", 1),
-      Worker("weee2", 1),
+      Worker(workerID="W1", begin=tHour(0, 00), end=tHour(23, 59), multitask=1),
+      Worker(workerID="W2", begin=tHour(0, 00), end=tHour(23, 59), multitask=1)
     ]
     taskManager = TaskManager(period=self.tPeriod())
     taskManager.addTask(self.tasks[0])
@@ -183,9 +183,9 @@ class TestTaskManager(TestCase):
 
   def test_finishTasksAfterAssigningTasksToWorkers(self):
     workers = [
-      Worker("weee1", 1),
-      Worker("weee2", 1),
-      Worker("weee3", 1)
+      Worker(workerID="W1", begin=tHour(0, 00), end=tHour(23, 59), multitask=1),
+      Worker(workerID="W2", begin=tHour(0, 00), end=tHour(23, 59), multitask=1),
+      Worker(workerID="W3", begin=tHour(0, 00), end=tHour(23, 59), multitask=1)
     ]
     taskManager = TaskManager(period=self.tPeriod())
     taskManager.addTask(self.tasks[0])
@@ -201,13 +201,21 @@ class TestTaskManager(TestCase):
     self.assertEqual(len(workers[1].assignedTasks), 0)
     self.assertEqual(len(taskManager.workers), 3)
 
-  def test_workersNeededForConflicts(self):
+  def test_workerGetsAssignedAnotherTaskAfterFinishing(self):
     workers = [
-      Worker("weee1", 1),
-      Worker("weee2", 1),
-      Worker("weee3", 1)
+      Worker(workerID="W1", begin=tHour(0, 00), end=tHour(23, 59), multitask=1),
+      Worker(workerID="W2", begin=tHour(0, 00), end=tHour(23, 59), multitask=1),
     ]
     taskManager = TaskManager(period=self.tPeriod())
     taskManager.addWorkers(workers)
     taskManager.addTasks(self.tasks)
-    taskManager.workersNeededForConflicts()
+    taskManager.assignTasksToWorkers()
+    self.assertEqual(len(workers[0].assignedTasks), 1)
+    self.assertEqual(len(workers[1].assignedTasks), 1)
+    # check that task was unnasigned from worker.
+    assignedTask = workers[0].assignedTasks[0]
+    taskManager.finishTask(assignedTask.taskID)
+    self.assertEqual(len(workers[0].assignedTasks), 0)
+    # now assign tasks if theres any more.
+    taskManager.assignTasksToWorkers()
+    self.assertEqual(len(workers[0].assignedTasks), 1)

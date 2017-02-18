@@ -81,12 +81,14 @@ class TaskManager(object):
     for task in self._unassignedTasks:
       if task.taskID == taskID:
         self._assignedTasks.remove(task)
+
     for worker in self._workers: # ask whatever worker has the task to unassign it.
       try:
-        worker.unassignTask(task)
+        worker.unassignTask(taskID)
         break
       except UnkownTaskException:
         pass
+
     try:
       task = self._taskSet.remove(taskID)
     except UnkownTaskException:
@@ -107,13 +109,24 @@ class TaskManager(object):
       "conflicts": []
     }
     for conflict in conflicts:
+      begin = conflict.period.begin
+      end = conflict.period.end
       workersNeeded = self.workersNeeded(len(conflict), 2)
+      workersAvailable = len(self._workersQ.availableWorkersDuringPeriod(begin, end))
       data = {
         "workersNeeded": workersNeeded,
-        "begin": conflict.period.begin.isoformat(),
-        "end": conflict.period.end.isoformat()
-        }
+        "begin": begin.isoformat(),
+        "end": end.isoformat(),
+        "availableWorkers": workersAvailable
+      }
+      if workersNeeded > workersAvailable:
+        data["status"] = "warning"
+      elif workersNeeded == workersAvailable:
+        data["status"] = "busy"
+      else:
+        data["status"] = "ok"
       dataset["conflicts"].append(data)
+
     return dataset
 
 

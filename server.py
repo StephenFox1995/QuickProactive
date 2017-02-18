@@ -5,6 +5,7 @@ from proactive.priority.exceptions import UnkownTaskException
 from proactive.priority.priorityservice import PriorityService
 from proactive.dbs import BusinessDB, OrderDB
 from proactive.priority.worker import Worker
+from proactive.utils.timeutil import tHour
 
 app = Flask(__name__)
 config = Configuration()
@@ -22,8 +23,15 @@ priorityService = PriorityService(orderDBConn)
 
 
 def transormWorkerObject(obj):
+  # change to datetime format
+  beginHour, beginMinute = obj["begin"].split(".")
+  endHour, endMinute = obj["end"].split(".")
+  obj["begin"] = tHour(int(beginHour), int(beginMinute))
+  obj["end"] = tHour(int(endHour), int(endMinute))
   return Worker(
     workerID=obj["id"],
+    begin=obj["begin"],
+    end=obj["end"],
     multitask=int(obj["multitask"])
   )
 
@@ -37,8 +45,8 @@ def begin():
 	    "business": {
 		  "id": "58876b6905733be97fb526ad",
         "workers":[
-          { "name":"Andrew Worker", "id": "W1234", "multitask": 2},
-          { "name": "Sinead Worker", "id": "W1234", "multitask": 2 }
+          { "name":"Andrew Worker", "id": "W1234", "multitask": 2, "begin": 13.30, "end": 18.30},
+          { "name": "Sinead Worker", "id": "W1234", "multitask": 2, "begin": 09.30, "end": 18.30}
         ]
       },
    	  "refresh": 5000
@@ -135,8 +143,8 @@ def addWorkers():
       "business": {
 		  "id": "58876b6905733be97fb526ad",
         "workers":[
-          { "name":"Andrew Worker", "id": "W1234", "multitask": 2},
-          { "name": "Sinead Worker", "id": "W1234", "multitask": 2 }
+          { "name":"Andrew Worker", "id": "W1234", "multitask": 2, "begin": 13.30, "end": 18.30},
+          { "name": "Sinead Worker", "id": "W1234", "multitask": 2, "begin": 09.30, "end": 18.30}
         ]
       },
     }
@@ -182,6 +190,7 @@ def removeTask():
       process = priorityService.process(processID=businessID)
       taskManager = process.taskManager
       taskManager.finishTask(taskID)
+      taskManager.assignTasksToWorkers()
       return jsonify({
         "status": "Success",
       })

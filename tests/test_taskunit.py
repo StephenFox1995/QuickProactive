@@ -14,7 +14,7 @@ class TestTaskUnit(TestCase):
     self.deadline = 500
     self.profit = 2.56
     self.processing = 100
-    self.worker = Worker("W1", 2)
+    self.worker = Worker(workerID="W1", begin=tHour(0, 00), end=tHour(23, 59), multitask=2)
     self.globalTask = TaskUnit(
       createdAt=self.createdAt,
       deadline=self.deadline,
@@ -105,6 +105,6 @@ class TestTaskUnit(TestCase):
       processing=self.processing,
       taskID=self.taskID
     )
-    worker = Worker("W1", 2)
+    worker = Worker(workerID="W1", begin=tHour(0, 00), end=tHour(23, 59), multitask=2)
     taskUnit.assignWorker(worker)
     self.assertEqual(taskUnit.assignedWorker, worker)
