@@ -241,9 +241,22 @@ class TestTaskManager(TestCase):
     taskManager.addTask(self.tasks[0])
     taskManager.addTask(self.tasks[1])
     taskManager.assignTasksToWorkers()
-    conflicts = taskManager.analyseWorkersNeededForConflicts(multitask=1)
+    conflicts = taskManager.analyseWorkersForNeededTaskSet(multitask=1)[0]
     self.assertEqual(conflicts[0].workersNeeded, 2)
     taskManager.finishTask(self.tasks[0].taskID)
     taskManager.finishTask(self.tasks[1].taskID)
-    conflicts = taskManager.analyseWorkersNeededForConflicts(multitask=1)
+    conflicts = taskManager.analyseWorkersForNeededTaskSet(multitask=1)[0]
     self.assertEqual(len(conflicts), 0) # there should be not conflicts
+
+  def test_analyseWorkersNeededTaskSet(self):
+    workers = [
+      Worker(workerID="W1", begin=tHour(0, 00), end=tHour(23, 59), multitask=1),
+      Worker(workerID="W2", begin=tHour(0, 00), end=tHour(23, 59), multitask=1),
+    ]
+    taskManager = TaskManager(period=self.tPeriod())
+    taskManager.addWorkers(workers)
+    taskManager.addTasks(self.tasks)
+    taskManager.assignTasksToWorkers()
+    conflicts, nonConflicts = taskManager.analyseWorkersForNeededTaskSet(2)
+    self.assertEqual(len(conflicts), 2)
+    self.assertEqual(len(nonConflicts), 2)

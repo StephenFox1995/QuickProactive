@@ -60,6 +60,7 @@ class TaskSet(object):
     end = self._intervalTree.end()
     conflicts = []
     conflictObjs = []
+    nonConflictObjs = []
     intervals = sorted(self._intervalTree[begin:end])
     for interval in intervals:
       _intervals = self._intervalTree[interval.begin:interval.end]
@@ -67,15 +68,9 @@ class TaskSet(object):
         if _intervals not in conflicts:
           conflicts.append(_intervals)
           conflictObjs.append(Conflict(_intervals))
-    return ConflictSet(conflictObjs)
-
-
-  def findNonConflicts(self):
-    """
-    Finds all the tasks that do not conflict with any other tasks.
-    """
-    conflicts = self.findConflicts().flatten()
-    return self._intervalTree.difference(conflicts).items()
+      else:
+        nonConflictObjs.append(Conflict(_intervals))
+    return ConflictSet(conflictObjs), ConflictSet(nonConflictObjs)
 
 
   def __iter__(self):

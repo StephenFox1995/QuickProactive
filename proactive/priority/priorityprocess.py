@@ -98,12 +98,16 @@ class PriorityProcess(object):
         "utilization": []
       },
     }
-    conflicts = self._taskManager.taskSet.findConflicts()
+    conflicts = self._taskManager.taskSet.findConflicts()[0]
     state["conflicts"]["sets"] = conflicts.asDict()
     state["conflicts"]["utilization"] = []
-    conflictAnalysis = self._taskManager.analyseWorkersNeededForConflicts(multitask=2)
+    conflictAnalysis = self._taskManager.analyseWorkersForNeededTaskSet(multitask=2)[0]
+    nonConflictAnalysis = self._taskManager.analyseWorkersForNeededTaskSet(multitask=2)[1]
     for conflict in conflictAnalysis:
       state["conflicts"]["utilization"].append(conflict.asDict())
+    for nonConflict in nonConflictAnalysis:
+      state["conflicts"]["utilization"].append(nonConflict.asDict())
+
     state["assignedTasks"] = map(lambda t: t.asDict(), self._taskManager.assignedTasks)
     state["unassignedTasks"] = map(lambda t: t.asDict(), self._taskManager.unassignedTasks)
     return state

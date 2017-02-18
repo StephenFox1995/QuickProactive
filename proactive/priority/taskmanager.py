@@ -113,12 +113,13 @@ class TaskManager(object):
     return availableWorkers
 
 
-  def analyseWorkersNeededForConflicts(self, multitask=2):
+  def analyseWorkersForNeededTaskSet(self, multitask=2):
     """
-      Analyses all the conflicts within the task set.
+      Analyses all the conflicts and non conflicts within the task set.
       Set the appropriate properties for each conflict.
     """
-    conflicts = self._taskSet.findConflicts().all()
+    conflicts = self._taskSet.findConflicts()[0].all()
+    nonConflicts = self._taskSet.findConflicts()[1].all()
     for conflict in conflicts:
       begin = conflict.period.begin
       end = conflict.period.end
@@ -126,7 +127,13 @@ class TaskManager(object):
       workersAvailable = len(self._workersQ.availableWorkersDuringPeriod(begin, end))
       conflict.workersNeeded = int(workersNeeded)
       conflict.availableWorkers = workersAvailable
-    return conflicts
+    for nonConflict in nonConflicts:
+      begin = nonConflict.period.begin
+      end = nonConflict.period.end
+      workersAvailable = len(self._workersQ.availableWorkersDuringPeriod(begin, end))
+      nonConflict.workersNeeded = 1
+      nonConflict.availableWorkers = workersAvailable
+    return conflicts, nonConflicts
 
 
   def workersNeeded(self, k, m):

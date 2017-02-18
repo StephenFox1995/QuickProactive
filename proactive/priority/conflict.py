@@ -64,6 +64,7 @@ class Conflict(object):
     self._workersNeeded = workersNeeded
     self._setStatus()
 
+
   def _setStatus(self):
     if self._workersNeeded and self._availableWorkers:
       if self._workersNeeded > self._availableWorkers:

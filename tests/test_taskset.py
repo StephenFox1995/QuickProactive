@@ -99,11 +99,11 @@ class TestTaskSet(TestCase):
 
   def test_conflicts(self):
     taskSet = self._taskSet()
-    self.assertEqual(len(taskSet.findConflicts().all()), 2)
+    self.assertEqual(len(taskSet.findConflicts()[0].all()), 2)
 
   def test_conflictPeriod(self):
     taskSet = self._taskSet()
-    conflictSet = taskSet.findConflicts().all()
+    conflictSet = taskSet.findConflicts()[0].all()
     expectedConflictPeriod1 = Period(tHour(9, 30), tHour(11, 00))
     expectedConflictPeriod2 = Period(tHour(11, 30), tHour(12, 30))
     conflict1 = conflictSet[0]
