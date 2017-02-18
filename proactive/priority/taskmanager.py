@@ -8,7 +8,7 @@ from .exceptions import (
 from .workerqueue import WorkerQueue
 from .worker import Worker
 from .taskset import TaskSet
-
+from .conflict import Conflict
 
 class TaskManager(object):
   def __init__(self, period):
@@ -58,6 +58,7 @@ class TaskManager(object):
       )
     try:
       self._taskSet.add(task)
+      self._unassignedTasks.append(task)
     except DuplicateTaskException:
       pass
 
@@ -74,23 +75,32 @@ class TaskManager(object):
     self._finishTask(taskID)
 
 
-  def _finishTask(self, taskID):
+  def _getTask(self, taskID):
+    """
+      Finds a task by id in assigned or unassigned task lists.
+    """
     for task in self._assignedTasks:
       if task.taskID == taskID:
-        self._assignedTasks.remove(task)
+        return task
     for task in self._unassignedTasks:
       if task.taskID == taskID:
-        self._assignedTasks.remove(task)
+        return task
 
+
+  def _finishTask(self, taskID):
+    task = self._getTask(taskID)
+    if task in self._assignedTasks:
+      self._assignedTasks.remove(task)
+    if task in self._unassignedTasks:
+      self._unassignedTasks.remove(task)
     for worker in self._workers: # ask whatever worker has the task to unassign it.
       try:
         worker.unassignTask(taskID)
         break
       except UnkownTaskException:
         pass
-
     try:
-      task = self._taskSet.remove(taskID)
+      task = self._taskSet.remove(task)
     except UnkownTaskException:
       pass
 
@@ -103,31 +113,20 @@ class TaskManager(object):
     return availableWorkers
 
 
-  def workersNeededForConflicts(self):
+  def analyseWorkersNeededForConflicts(self, multitask=2):
+    """
+      Analyses all the conflicts within the task set.
+      Set the appropriate properties for each conflict.
+    """
     conflicts = self._taskSet.findConflicts().all()
-    dataset = {
-      "conflicts": []
-    }
     for conflict in conflicts:
       begin = conflict.period.begin
       end = conflict.period.end
-      workersNeeded = self.workersNeeded(len(conflict), 2)
+      workersNeeded = self.workersNeeded(len(conflict), multitask)
       workersAvailable = len(self._workersQ.availableWorkersDuringPeriod(begin, end))
-      data = {
-        "workersNeeded": workersNeeded,
-        "begin": begin.isoformat(),
-        "end": end.isoformat(),
-        "availableWorkers": workersAvailable
-      }
-      if workersNeeded > workersAvailable:
-        data["status"] = "warning"
-      elif workersNeeded == workersAvailable:
-        data["status"] = "busy"
-      else:
-        data["status"] = "ok"
-      dataset["conflicts"].append(data)
-
-    return dataset
+      conflict.workersNeeded = int(workersNeeded)
+      conflict.availableWorkers = workersAvailable
+    return conflicts
 
 
   def workersNeeded(self, k, m):
@@ -178,13 +177,10 @@ class TaskManager(object):
       if worker.canAssignTask():
         worker.assignTask(task)
         task.assignWorker(weakref.ref(worker)())
-        # check if this task was ever in unassigned tasks because
-        # at some stage it could not be assigned.
-        # if so take it out of unassigned and put in assigned list.
         if task in self._unassignedTasks:
           self._unassignedTasks.remove(task)
           self._assignedTasks.append(task)
-        else: # not in unassigned before so put straight into assigned.
+        else:
           self._assignedTasks.append(task)
         return # task has been assigned return from method
       else:

@@ -11,6 +11,17 @@ from .testutil import tHour
 
 class TestTaskManager(TestCase):
   def setUp(self):
+    """
+      Visually the tasks would look something like this:
+
+                t1 ----
+                  t2 -----------------------
+                                                          t3 -----
+                                                            t4 ----
+                                                              t5 ---------------
+                                                                                                                              t6 --------------                     t7-
+      9.00-----9.30-----|10.00-----10.30-----|11.00-----11.30-----|12.00-----12.30-----|13.00-----13.30-----|14.00-----14.30-----|15.00-----15.30-----|16.00-----16.30
+    """
     self.tasks = [
       TaskUnit(
         createdAt=tHour(0, 0),
@@ -219,3 +230,20 @@ class TestTaskManager(TestCase):
     # now assign tasks if theres any more.
     taskManager.assignTasksToWorkers()
     self.assertEqual(len(workers[0].assignedTasks), 1)
+
+  def test_noConflictsAfterAllTasksRemoved(self):
+    workers = [
+      Worker(workerID="W1", begin=tHour(0, 00), end=tHour(23, 59), multitask=1),
+      Worker(workerID="W2", begin=tHour(0, 00), end=tHour(23, 59), multitask=1),
+    ]
+    taskManager = TaskManager(period=self.tPeriod())
+    taskManager.addWorkers(workers)
+    taskManager.addTask(self.tasks[0])
+    taskManager.addTask(self.tasks[1])
+    taskManager.assignTasksToWorkers()
+    conflicts = taskManager.analyseWorkersNeededForConflicts(multitask=1)
+    self.assertEqual(conflicts[0].workersNeeded, 2)
+    taskManager.finishTask(self.tasks[0].taskID)
+    taskManager.finishTask(self.tasks[1].taskID)
+    conflicts = taskManager.analyseWorkersNeededForConflicts(multitask=1)
+    self.assertEqual(len(conflicts), 0) # there should be not conflicts

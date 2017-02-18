@@ -2,115 +2,7 @@ from intervaltree import IntervalTree
 from .taskunit import TaskUnit
 from .taskunitpriorityqueue import TaskUnitPriorityQueue
 from .exceptions import DuplicateTaskException
-from .period import Period
-
-
-class Conflict(object):
-  """
-    A data structure that holds all tasks that conflict at a given time.
-  """
-  def __init__(self, intervals):
-    self._intervals = list(intervals)
-
-
-  @property
-  def period(self):
-    begin = self._intervals[0].begin
-    end = self._intervals[0].end
-    for interval in self._intervals:
-      # get the earliest begin time
-      if interval.begin < begin:
-        begin = interval.begin
-      # get the earliest begin time
-      if interval.end > end:
-        end = interval.end
-    return Period(begin, end)
-
-
-  def __iter__(self):
-    return iter(self._intervals)
-
-
-  def __str__(self):
-    string = "Conflicts: <"
-    for interval in self._intervals:
-      string += str(interval)
-    string += ">"
-    return string
-
-
-  def __len__(self):
-    return len(self._intervals)
-
-
-
-
-class ConflictSet(object):
-  """
-    A data structure to hold all conflicts for a given task set.
-  """
-  def __init__(self, conflicts):
-    self._conflicts = list(conflicts)
-
-
-  def all(self):
-    return self._conflicts
-
-
-  def allLessThanOrEqual(self, value):
-    conflicts = []
-    for conflict in self._conflicts:
-      if len(conflict) <= value:
-        conflicts.append(conflict)
-    return conflicts
-
-
-  def allGreaterThan(self, value):
-    conflicts = []
-    for conflict in self._conflicts:
-      if len(conflict) > value:
-        conflicts.append(conflict)
-    return conflicts
-
-
-  def max(self):
-    maxConflict = None
-    maxSize = 0
-    for conflict in self._conflicts:
-      if len(conflict) > maxSize:
-        maxConflict = conflict
-        maxSize = len(conflict)
-    return maxConflict
-
-
-  def flatten(self):
-    intervals = []
-    for x in self._conflicts:
-      for y in x:
-        intervals.append(y)
-    return intervals
-
-
-  def asDict(self):
-    conflicts = []
-    for conflict in self._conflicts:
-      intervals = []
-      for interval in conflict:
-        _interval = {}
-        begin = interval.begin.isoformat()
-        end = interval.end.isoformat()
-        _interval["begin"] = begin
-        _interval["end"] = end
-        intervals.append(_interval)
-      conflicts.append(intervals)
-    return conflicts
-
-
-  def __str__(self):
-    string = ""
-    for conflict in self._conflicts:
-      string += str(conflict) + "\n"
-    return string
+from .conflict import Conflict, ConflictSet
 
 
 class TaskSet(object):
@@ -120,6 +12,7 @@ class TaskSet(object):
   def __init__(self):
     self._tasksQueue = TaskUnitPriorityQueue() # keep r1 < r2 < r3 order.
     self._intervalTree = IntervalTree()
+
 
   @property
   def tasks(self):
@@ -148,13 +41,9 @@ class TaskSet(object):
     )
 
 
-  def remove(self, taskID):
-    """
-      Removes a task from the set and returns it.
-    """
-    task = self._tasksQueue.remove(taskID)
+  def remove(self, task):
     self._intervalTree.discardi(task.release, task.deadline, task.taskID)
-    return task
+    self._tasksQueue.remove(task.taskID)
 
 
   def findConflicts(self):

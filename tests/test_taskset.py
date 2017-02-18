@@ -94,7 +94,7 @@ class TestTaskSet(TestCase):
 
   def test_remove(self):
     taskSet = self._taskSet()
-    self.assertEqual(taskSet.remove(self.tasks[0].taskID), self.tasks[0])
+    taskSet.remove(self.tasks[0])
     self.assertEqual(len(taskSet.tasks), 6)
 
   def test_conflicts(self):
