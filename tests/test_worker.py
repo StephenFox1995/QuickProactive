@@ -44,11 +44,11 @@ class TestWorker(TestCase):
 
   def test_canAssignTasks(self):
     worker = Worker(workerID="W1", begin=tHour(0, 00), end=tHour(23, 59), multitask=2)
-    self.assertTrue(worker.canAssignTask())
+    self.assertFalse(worker.hasReachedTaskLimit())
     worker.assignTask(self.task1)
-    self.assertTrue(worker.canAssignTask())
+    self.assertFalse(worker.hasReachedTaskLimit())
     worker.assignTask(self.task2)
-    self.assertFalse(worker.canAssignTask())
+    self.assertTrue(worker.hasReachedTaskLimit())
 
   def test_unnasignTask(self):
     worker = Worker(workerID="W1", begin=tHour(0, 00), end=tHour(23, 59), multitask=2)

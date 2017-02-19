@@ -8,12 +8,11 @@ class PriorityService(object):
     self._orderDBConn = orderDBConn
     self.__processes = {}
 
-  def newProcess(self, business, workers, processID, refresh=5000):
+  def newProcess(self, business, processID, refresh=5000):
     """
       Creates a new priorityprocess.PriorityProcess to periodically
       calculate the priority of new orders.
       @param business:(Business) Object that contains 'businessID'
-      @param workers:(list) A list of worker objects.
       @param refresh:(int)  The refresh rate in milliseconds, i.e
                             how often the service will run.
     """
@@ -22,7 +21,6 @@ class PriorityService(object):
     process = PriorityProcess(
       business=business,
       ordersDBConn=self._orderDBConn,
-      workers=workers,
       refresh=refresh
     )
     self.__processes[processID] = process

@@ -196,7 +196,7 @@ class TaskManager(object):
       # get next worker
       worker = self._workersQ.nextWorker()
       # check if worker has reached limit.
-      if not worker.hasReachedTaskLimit():
+      if not worker.hasReachedTaskLimit() and worker.availableInPeriod(task.release, task.deadline):
         worker.assignTask(task)
         task.assignWorker(weakref.ref(worker)())
         if task in self._unassignedTasks:
@@ -204,7 +204,6 @@ class TaskManager(object):
           self._assignedTasks.append(task)
         else:
           self._assignedTasks.append(task)
-
         return # task has been assigned return from method
       else:
         continue
@@ -224,24 +223,28 @@ class TaskManager(object):
     for _ in range(0, maxTasksAchievable):
       # get next worker
       worker = self._workersQ.nextWorker()
-      if worker.hasReachedTaskLimit(): # if worker if full, try see if he can swap.
-        # check if any task can be swapped.
-        swappableTask = worker.findSwappableTask(task)
-        if swappableTask:
-          # unassign the task that can be swapped.
-          worker.unassignTask(swappableTask.taskID)
-          # assign the earlier release task
-          worker.assignTask(task)
-          task.assignWorker(weakref.ref(worker)())
-          # remove swappableTask from assigned tasks
-          self._unassignedTasks.append(swappableTask)
-          self._assignedTasks.remove(swappableTask)
-          # remove the employee who was assigned this task.
-          swappableTask.unassignWorker()
-          # put the newly assigned task in assignedTasks
-          self._unassignedTasks.remove(task)
-          self._assignedTasks.append(task)
-          return swappableTask # task has been assigned return from method
-        else:
-          continue # try next worker.
+      # first check if worker is actually available in period.
+      if worker.availableInPeriod(task.release, task.deadline):
+        if worker.hasReachedTaskLimit(): # if worker if full, try see if he can swap.
+          # check if any task can be swapped.
+          swappableTask = worker.findSwappableTask(task)
+          if swappableTask:
+            # unassign the task that can be swapped.
+            worker.unassignTask(swappableTask.taskID)
+            # assign the earlier release task
+            worker.assignTask(task)
+            task.assignWorker(weakref.ref(worker)())
+            # remove swappableTask from assigned tasks
+            self._unassignedTasks.append(swappableTask)
+            self._assignedTasks.remove(swappableTask)
+            # remove the employee who was assigned this task.
+            swappableTask.unassignWorker()
+            # put the newly assigned task in assignedTasks
+            self._unassignedTasks.remove(task)
+            self._assignedTasks.append(task)
+            return swappableTask # task has been assigned return from method
+          else:
+            continue # try next worker.
+      else:
+        continue # worker not available in the period to complete the task, try next one.
     raise UnassignableTaskException

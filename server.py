@@ -43,13 +43,10 @@ def begin():
     The request should contain a similar body as the following:
     {
 	    "business": {
-		  "id": "58876b6905733be97fb526ad",
-        "workers":[
-          { "name":"Andrew Worker", "id": "W1234", "multitask": 2, "begin": 13.30, "end": 18.30},
-          { "name": "Sinead Worker", "id": "W1234", "multitask": 2, "begin": 09.30, "end": 18.30}
-        ]
+        "id": "58876b6905733be97fb526ad",
+        "multitask": 3
       },
-   	  "refresh": 5000
+      "refresh": 5000
     }
   """
   _json = request.get_json()
@@ -57,7 +54,6 @@ def begin():
     business = _json.get("business")
     businessID = business["id"]
     refresh = _json["refresh"]
-    workers = business["workers"]
     businessDBConn = BusinessDB(
       mongo["uri"],
       mongo["port"],
@@ -68,16 +64,10 @@ def begin():
     businessDBConn.connect()
     business = businessDBConn.read(businessID)
     businessDBConn.close()
-
-    workerInstances = []
-    for w in workers:
-      workerInstances.append(transormWorkerObject(w))
-
     try:
       priorityService.newProcess(
         business=business,
         processID=businessID,
-        workers=workerInstances,
         refresh=refresh
       )
       return jsonify({
@@ -141,7 +131,7 @@ def addWorkers():
   """
     {
       "business": {
-		  "id": "58876b6905733be97fb526ad",
+        "id": "58876b6905733be97fb526ad",
         "workers":[
           { "name":"Andrew Worker", "id": "W1234", "multitask": 2, "begin": 13.30, "end": 18.30},
           { "name": "Sinead Worker", "id": "W1234", "multitask": 2, "begin": 09.30, "end": 18.30}
@@ -211,7 +201,7 @@ def getWorkers():
     workers = taskManager.workers
     response = {"workers": []}
     for w in workers:
-      response["workers"].append({"id": str(w)})
+      response["workers"].append(w.asDict())
     return jsonify(response)
   except KeyError:
     return jsonify({

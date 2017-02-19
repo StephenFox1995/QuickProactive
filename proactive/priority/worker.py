@@ -1,7 +1,4 @@
-from .exceptions import (
-  MaxTaskLimitReachedException,
-  UnkownTaskException,
-  UnassignableTaskException)
+from .exceptions import UnkownTaskException, MaxTaskLimitReachedException
 
 class Worker(object):
   def __init__(self, workerID, begin, end, multitask):
@@ -35,7 +32,10 @@ class Worker(object):
 
 
   def assignTask(self, task):
-    self._assignedTasks.append(task)
+    if self.hasReachedTaskLimit():
+      raise MaxTaskLimitReachedException
+    else:
+      self._assignedTasks.append(task)
 
 
   def hasReachedTaskLimit(self):
@@ -51,9 +51,18 @@ class Worker(object):
       if task.release < _task.release and not _task.isProcessing():
         return _task
 
+
   def availableInPeriod(self, begin, end):
     return begin >= self._begin and end <= self._end
 
+
+  def asDict(self):
+    return {
+      "id": self._id,
+      "begin": self._begin.isoformat(),
+      "end": self._end.isoformat(),
+      "assignedTasks": len(self._assignedTasks)
+    }
 
   def __str__(self):
     return self._id

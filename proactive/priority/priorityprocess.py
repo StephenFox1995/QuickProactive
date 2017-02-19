@@ -8,10 +8,9 @@ from .taskunit import TaskUnit
 
 
 class PriorityProcess(object):
-  def __init__(self, business, workers, ordersDBConn, refresh=5000):
+  def __init__(self, business, ordersDBConn, refresh=5000):
     """
       @param businessID:(str) Object will all business info.
-      @param workers:(list) A list of worker objects.
       @param ordersDBConn:(db.prioritydb.PriorityDB) Database connection to read orders from.
       @param refresh:(int) - milliseconds: How often the database should be read to when checking
         for new orders. How often the database should be written to with the current state of the
@@ -20,7 +19,6 @@ class PriorityProcess(object):
     self._business = business
     self._businessCoordinates = business.coordinates
     self._taskManager = TaskManager((business.period.begin, business.period.end))
-    self._taskManager.addWorkers(workers)
     self._ordersDBConn = ordersDBConn
     self._refresh = refresh
     self._config = Configuration()
