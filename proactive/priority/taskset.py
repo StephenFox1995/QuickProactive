@@ -20,14 +20,11 @@ class TaskSet(object):
 
 
   def add(self, task):
-    if isinstance(task, TaskUnit):
-      if not self._tasksQueue.contains(task.taskID):
-        self._addTaskToTree(task)
-        self._tasksQueue.push(task)
-      else:
-        raise DuplicateTaskException
+    if not self._tasksQueue.contains(task.taskID):
+      self._addTaskToTree(task)
+      self._tasksQueue.push(task)
     else:
-      raise TypeError("Expected %s got %s" % (TaskUnit, type(task)))
+      raise DuplicateTaskException
 
 
   def _addTaskToTree(self, task):

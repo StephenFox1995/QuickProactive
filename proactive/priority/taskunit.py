@@ -75,8 +75,14 @@ class TaskUnit(Priority):
         "Release time is later than deadline, this is not allowed."
       )
 
+  def isProcessing(self):
+    return self.release <= datetime.now()
+
   def assignWorker(self, worker):
     self._assignedWorker = worker
+
+  def unassignWorker(self):
+    self._assignedWorker = None
 
   @property
   def assignedWorker(self):

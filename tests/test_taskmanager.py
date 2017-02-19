@@ -2,6 +2,7 @@ from random import randint
 from math import ceil
 from unittest import TestCase
 from datetime import datetime
+from mock import patch
 from proactive.priority.taskmanager import TaskManager
 from proactive.priority.taskunit import TaskUnit
 from proactive.priority.exceptions import LateDeadlineException
@@ -177,6 +178,53 @@ class TestTaskManager(TestCase):
     self.assertEqual(self.tasks[3], extraWorkers[0].assignedTasks[0]) #check w4
     self.assertEqual(self.tasks[4], extraWorkers[1].assignedTasks[0]) #check w5
     self.assertEqual(taskManager.unassignedTasks[0], self.tasks[5])
+
+  @patch('proactive.priority.taskunit.TaskUnit.isProcessing')
+  def test_assignTaskToWorkersThatNeedsToBeSwapped(self, isProcessing):
+    # mock task unit so its isProcessing method always returns true
+    # as it is time dependent, and will fail if this test if run at certain times
+    isProcessing.return_value = False
+
+    task1 = TaskUnit(
+        createdAt=tHour(0, 0),
+        deadline=tHour(10, 00),
+        profit=0,
+        processing=0,
+        release=tHour(9, 30),
+        taskID="t1"
+      )
+    task2 = TaskUnit(
+      createdAt=tHour(0, 0),
+      deadline=tHour(11, 00),
+      profit=0,
+      processing=0,
+      release=tHour(9, 40),
+      taskID="t2"
+    )
+    task3 = TaskUnit(
+      createdAt=tHour(0, 0),
+      deadline=tHour(12, 00),
+      profit=0,
+      processing=0,
+      release=tHour(11, 30),
+      taskID="t3"
+    )
+    workers = [
+      Worker(workerID="W4", begin=tHour(0, 00), end=tHour(23, 59), multitask=1),
+      Worker(workerID="W1", begin=tHour(0, 00), end=tHour(23, 59), multitask=1)
+    ]
+    taskManager = TaskManager(period=self.tPeriod())
+    taskManager.addTask(task2)
+    taskManager.addTask(task3)
+    taskManager.addWorkers(workers)
+    taskManager.assignTasksToWorkers()
+    self.assertEqual(task2, workers[0].assignedTasks[0])
+    self.assertEqual(task3, workers[1].assignedTasks[0])
+    taskManager.addTask(task1) # earlier release, therfore should be swapped.
+    taskManager.assignTasksToWorkers()
+    self.assertEqual(task1, workers[0].assignedTasks[0]) # should be assigned to worker
+    self.assertIsNone(task3.assignedWorker) # workers for task3 should be None
+
 
   def test_assignedTasksCountAndUnassignedTasksCount(self):
     workers = [

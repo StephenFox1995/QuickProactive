@@ -8,7 +8,7 @@ from .exceptions import (
 from .workerqueue import WorkerQueue
 from .worker import Worker
 from .taskset import TaskSet
-from .conflict import Conflict
+
 
 class TaskManager(object):
   def __init__(self, period):
@@ -166,22 +166,37 @@ class TaskManager(object):
     tasksToPutIntoSet = []
     for task in self._taskSet:
       try:
+        # attempt to assign worker task by normal means.
         self._assignTaskToAnyWorkerOrFail(task)
       except UnassignableTaskException:
-        tasksToPutIntoSet.append(task)
-        if task not in self._unassignedTasks:
-          self._unassignedTasks.append(task)
+        # the task cannot be assigned to worker by normal means
+        # try to see if any worker can swap a task.
+        try:
+          swappedTask = self._assignTaskBySwap(task)
+          # as this tas has been swapped we must put it back
+          # into the task set immeadiately for re-assignment.
+          self._taskSet.add(swappedTask)
+        except UnassignableTaskException:
+          # no worker could assign task by any means.
+          # put back into task set for processing later when worker
+          # become available.
+          tasksToPutIntoSet.append(task)
+          if task not in self._unassignedTasks:
+            self._unassignedTasks.append(task)
     for task in tasksToPutIntoSet: # put all unassigned tasks back into set.
       self._taskSet.add(task)
 
 
   def _assignTaskToAnyWorkerOrFail(self, task):
+    """
+      Attempts to assign a task to a worker.
+    """
     maxTasksAchievable = self._workersQ.maxTasksAchievable()
     for _ in range(0, maxTasksAchievable):
       # get next worker
       worker = self._workersQ.nextWorker()
-      # check if we've already tried to assign it  task.
-      if worker.canAssignTask():
+      # check if worker has reached limit.
+      if not worker.hasReachedTaskLimit():
         worker.assignTask(task)
         task.assignWorker(weakref.ref(worker)())
         if task in self._unassignedTasks:
@@ -189,8 +204,44 @@ class TaskManager(object):
           self._assignedTasks.append(task)
         else:
           self._assignedTasks.append(task)
+
         return # task has been assigned return from method
       else:
         continue
     # task was not assigned.
+    raise UnassignableTaskException
+
+
+  def _assignTaskBySwap(self, task):
+    """
+      Attempts the assign a task by swapping it with another because
+      it has an earlier release, this should only be called when it is
+      known that all worker have been assigned as many tasks as possible.
+      @param task: the task to assign by swapping with another if possible.
+      @return Task the task that was swapped.
+    """
+    maxTasksAchievable = self._workersQ.maxTasksAchievable()
+    for _ in range(0, maxTasksAchievable):
+      # get next worker
+      worker = self._workersQ.nextWorker()
+      if worker.hasReachedTaskLimit(): # if worker if full, try see if he can swap.
+        # check if any task can be swapped.
+        swappableTask = worker.findSwappableTask(task)
+        if swappableTask:
+          # unassign the task that can be swapped.
+          worker.unassignTask(swappableTask.taskID)
+          # assign the earlier release task
+          worker.assignTask(task)
+          task.assignWorker(weakref.ref(worker)())
+          # remove swappableTask from assigned tasks
+          self._unassignedTasks.append(swappableTask)
+          self._assignedTasks.remove(swappableTask)
+          # remove the employee who was assigned this task.
+          swappableTask.unassignWorker()
+          # put the newly assigned task in assignedTasks
+          self._unassignedTasks.remove(task)
+          self._assignedTasks.append(task)
+          return swappableTask # task has been assigned return from method
+        else:
+          continue # try next worker.
     raise UnassignableTaskException

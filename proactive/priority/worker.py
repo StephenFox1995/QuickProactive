@@ -1,4 +1,7 @@
-from .exceptions import MaxTaskLimitReachedException, UnkownTaskException
+from .exceptions import (
+  MaxTaskLimitReachedException,
+  UnkownTaskException,
+  UnassignableTaskException)
 
 class Worker(object):
   def __init__(self, workerID, begin, end, multitask):
@@ -31,18 +34,22 @@ class Worker(object):
     raise UnkownTaskException("Unkown task")
 
 
-  def canAssignTask(self):
-    return not(len(self._assignedTasks) >= self._multitask)
-
-
   def assignTask(self, task):
-    if not self.canAssignTask():
-      raise MaxTaskLimitReachedException(
-        "Cannot assign any more tasks to worker: %s", self._id
-      )
-    else:
-      self._assignedTasks.append(task)
+    self._assignedTasks.append(task)
 
+
+  def hasReachedTaskLimit(self):
+    return len(self._assignedTasks) >= self._multitask
+
+
+  def findSwappableTask(self, task):
+    """
+      Find any task that can be swapped and returns it
+      because there release is later than the task passed to the method.
+    """
+    for _task in self._assignedTasks:
+      if task.release < _task.release and not _task.isProcessing():
+        return _task
 
   def availableInPeriod(self, begin, end):
     return begin >= self._begin and end <= self._end
