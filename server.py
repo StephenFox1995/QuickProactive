@@ -1,7 +1,7 @@
 from flask import Flask, request, Response, jsonify
 from flask_cors import CORS, cross_origin
 from proactive.config import Configuration
-from proactive.priority.exceptions import UnkownTaskException
+from proactive.priority.exceptions import UnkownTaskException, UnfinishedTasksHeldByWorkerException
 from proactive.priority.priorityservice import PriorityService
 from proactive.dbs import BusinessDB, OrderDB
 from proactive.priority.worker import Worker
@@ -209,6 +209,30 @@ def getWorkers():
       "reason": "No process exist for id %s" % businessID
     }), 500
 
+
+@app.route("/workers", methods=["DELETE"])
+@cross_origin()
+def removeWorkers():
+  try:
+    businessID = request.args["id"]
+    workerID = request.args["workerID"]
+    process = priorityService.process(processID=businessID)
+    taskManager = process.taskManager
+    taskManager.removeWorker(workerID)
+    return jsonify({
+      "status": "Success",
+      "reason": "Worker removed"
+    }), 200
+  except KeyError:
+    return jsonify({
+      "status": "Failed",
+      "reason": "No process exist for id %s" % businessID
+    }), 500
+  except UnfinishedTasksHeldByWorkerException:
+    return jsonify({
+      "status": "Failed",
+      "reason": "Tasks still assigned to worker",
+    }), 500
 
 if __name__ == "__main__":
   app.run(host='0.0.0.0', port=6566)
