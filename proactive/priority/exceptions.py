@@ -12,3 +12,6 @@ class UnkownTaskException(Exception):
 
 class DuplicateTaskException(Exception): # when same task is added to task set twice.
   pass
+
+class UnfinishedTasksHeldByWorkerException(Exception):
+  pass

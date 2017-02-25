@@ -4,7 +4,8 @@ from .exceptions import (
   LateDeadlineException,
   UnassignableTaskException,
   UnkownTaskException,
-  DuplicateTaskException)
+  DuplicateTaskException,
+  UnfinishedTasksHeldByWorkerException)
 from .workerqueue import WorkerQueue
 from .worker import Worker
 from .taskset import TaskSet
@@ -162,6 +163,19 @@ class TaskManager(object):
       self.addWorker(w)
 
 
+  def removeWorker(self, workerID):
+    """
+      Removes worker from worker list.
+    """
+    for w in self._workers:
+      if w.workerID == workerID:
+        if len(w.assignedTasks) == 0:
+          self._workers.remove(w)
+          self._workersQ.removeWorker(w)
+        else:
+          raise UnfinishedTasksHeldByWorkerException
+
+
   def assignTasksToWorkers(self):
     tasksToPutIntoSet = []
     for task in self._taskSet:
@@ -213,7 +227,7 @@ class TaskManager(object):
 
   def _assignTaskBySwap(self, task):
     """
-      Attempts the assign a task by swapping it with another because
+      Attempts to assign a task by swapping it with another because
       it has an earlier release, this should only be called when it is
       known that all worker have been assigned as many tasks as possible.
       @param task: the task to assign by swapping with another if possible.
