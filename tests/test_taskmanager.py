@@ -5,7 +5,10 @@ from datetime import datetime
 from mock import patch
 from proactive.priority.taskmanager import TaskManager
 from proactive.priority.taskunit import TaskUnit
-from proactive.priority.exceptions import LateDeadlineException, UnfinishedTasksHeldByWorkerException
+from proactive.priority.exceptions import (
+  LateDeadlineException,
+  UnfinishedTasksHeldByWorkerException,
+  UnkownWorkerException)
 from proactive.priority.worker import Worker
 from .testutil import tHour
 
@@ -156,7 +159,6 @@ class TestTaskManager(TestCase):
     # make sure the exception is thrown as the tasks are not finished yet.
     with self.assertRaises(UnfinishedTasksHeldByWorkerException):
       taskManager.removeWorker(workers[0].workerID)
-
     # finish the tasks and remove workers
     taskManager.finishTask(self.tasks[0].taskID)
     taskManager.removeWorker(workers[0].workerID)
@@ -164,6 +166,13 @@ class TestTaskManager(TestCase):
     taskManager.finishTask(self.tasks[1].taskID)
     taskManager.removeWorker(workers[1].workerID)
     self.assertEqual(len(taskManager.workers), 0)
+
+  def test_removeUnkownWorker(self):
+    worker = Worker(workerID="W1", begin=tHour(0, 00), end=tHour(23, 59), multitask=1)
+    taskManager = TaskManager(self.tPeriod())
+    taskManager.addWorker(worker)
+    with self.assertRaises(UnkownWorkerException):
+      taskManager.removeWorker("thisworkerdoesnotexists")
 
   def test_addWorker(self):
     worker = Worker(workerID="W1", begin=tHour(0, 00), end=tHour(23, 59), multitask=1)

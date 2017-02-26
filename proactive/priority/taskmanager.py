@@ -5,7 +5,8 @@ from .exceptions import (
   UnassignableTaskException,
   UnkownTaskException,
   DuplicateTaskException,
-  UnfinishedTasksHeldByWorkerException)
+  UnfinishedTasksHeldByWorkerException,
+  UnkownWorkerException)
 from .workerqueue import WorkerQueue
 from .worker import Worker
 from .taskset import TaskSet
@@ -154,7 +155,7 @@ class TaskManager(object):
       self._workers.append(worker)
     else:
       raise TypeError(
-        "Cannot add worker type %s, should be %s" % Worker
+        "Cannot add worker %s, should be %s" % (type(worker), Worker)
       )
 
 
@@ -172,8 +173,10 @@ class TaskManager(object):
         if len(w.assignedTasks) == 0:
           self._workers.remove(w)
           self._workersQ.removeWorker(w)
+          return
         else:
           raise UnfinishedTasksHeldByWorkerException
+    raise UnkownWorkerException
 
 
   def assignTasksToWorkers(self):

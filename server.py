@@ -1,7 +1,10 @@
 from flask import Flask, request, Response, jsonify
 from flask_cors import CORS, cross_origin
 from proactive.config import Configuration
-from proactive.priority.exceptions import UnkownTaskException, UnfinishedTasksHeldByWorkerException
+from proactive.priority.exceptions import (
+  UnkownTaskException,
+  UnfinishedTasksHeldByWorkerException,
+  UnkownWorkerException)
 from proactive.priority.priorityservice import PriorityService
 from proactive.dbs import BusinessDB, OrderDB
 from proactive.priority.worker import Worker
@@ -232,6 +235,11 @@ def removeWorkers():
     return jsonify({
       "status": "Failed",
       "reason": "Tasks still assigned to worker",
+    }), 500
+  except UnkownWorkerException:
+    return jsonify({
+      "status": "Failed",
+      "reason": "Uknown worker",
     }), 500
 
 if __name__ == "__main__":
