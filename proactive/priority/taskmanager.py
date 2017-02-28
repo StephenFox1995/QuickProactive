@@ -120,8 +120,9 @@ class TaskManager(object):
       Analyses all the conflicts and non conflicts within the task set.
       Set the appropriate properties for each conflict.
     """
-    conflicts = self._taskSet.findConflicts()[0].all()
-    nonConflicts = self._taskSet.findConflicts()[1].all()
+    conflicts, nonConflicts = self._taskSet.findConflicts()
+    conflicts = conflicts.all()
+    nonConflicts = nonConflicts.all()
     for conflict in conflicts:
       begin = conflict.period.begin
       end = conflict.period.end

@@ -26,9 +26,11 @@ class PriorityProcess(object):
     self.__scheduler = BackgroundScheduler()
     self.__orderStore = []
 
+
   @property
   def taskManager(self):
     return self._taskManager
+
 
   @property
   def tasks(self):
@@ -37,13 +39,16 @@ class PriorityProcess(object):
       tasks.append(task.asDict())
     return tasks
 
+
   def run(self):
     logging.basicConfig()
     self.__scheduler.add_job(self.__monitor, 'interval', seconds=self._refresh/1000)
     self.__scheduler.start()
 
+
   def stop(self):
     self.__scheduler.shutdown()
+
 
   def __monitor(self):
     """
@@ -75,8 +80,10 @@ class PriorityProcess(object):
       self._taskManager.addTask(task)
     self._taskManager.assignTasksToWorkers()
 
+
   def __readUnprocessedOrders(self, excluding):
     return self._ordersDBConn.read(self._business.businessID, excluding)
+
 
   def _customerArrivalTime(self, customerCoordinates, travelMode):
     return self._travel.find(
@@ -86,6 +93,7 @@ class PriorityProcess(object):
       mode=travelMode,
       measure="value"
     )
+
 
   def taskSetState(self):
     state = {
@@ -109,6 +117,7 @@ class PriorityProcess(object):
     state["assignedTasks"] = map(lambda t: t.asDict(), self._taskManager.assignedTasks)
     state["unassignedTasks"] = map(lambda t: t.asDict(), self._taskManager.unassignedTasks)
     return state
+
 
   def addWorkers(self, workers):
     self._taskManager.addWorkers(workers)

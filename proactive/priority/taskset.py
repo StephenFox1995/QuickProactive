@@ -43,31 +43,80 @@ class TaskSet(object):
     self._tasksQueue.remove(task.taskID)
 
 
+  def _latestInterval(self, intervals):
+    """
+      Find the latest interval.
+    """
+    latest = intervals[0]
+    for interval in intervals:
+      if interval.begin > latest.begin:
+        latest = interval
+    return latest
+
+
+  def _conflictPath(self, interval, intervalTree, exclude=None):
+    """
+      @param interval The interval to find conflicts with.
+      @param intervalTree The intervalTree that contains all intervals
+      @param exclude Any intervals to exclude from conflict detection.
+      Finds the longest number of intervals that are all overlapping (conflicting).
+        For example:
+          if A and B conflict and B and C conflict and A is the
+          interval we're looking for conflicts with, the returned
+          intervals will be A, B, C.
+        Another example:
+          if D and E conflict and F and G conflict, and we're looking
+          for all conflicts with D, only D and E will be returned as
+          F and G are not overlapping with either D and E.
+    """
+    if not exclude:
+      exclude = set()
+    intervals = intervalTree.search(interval) - exclude
+    intervalsList = list(intervals)
+    # if only one interval, check if its the one we're
+    # trying to find conflicts with.
+    if len(intervalsList) == 1 and intervalsList[0] == interval:
+      return []
+    # now find the latest of all the intervals and get all conflicts
+    # with and keep going until there are no more conflicts.
+    latest = self._latestInterval(list(intervals))
+    excludedIntervals = intervals - set([latest])
+    intervalsList.extend(self._conflictPath(latest, intervalTree, exclude=excludedIntervals))
+    return intervalsList
+
+
+  def _intervalConflictAlreadyDetected(self, interval, conflicts):
+    """
+      Checks to see if interval was already detected to conflict.
+    """
+    for conflict in conflicts:
+      for ival in conflict:
+        if ival == interval:
+          return True
+    return False
+
+
   def findConflicts(self):
     """
-      Finds all the conflicts within the tasks set.
-      A conflict being, any two or more tasks that need
-      to be proccessed at some point simultaneously.
-      In terms of an interval tree, the two task times 'overlap'.
-
-      This method finds all the conflicts of the current task set
-      held by this class.
+      Finds all conflicts within the task set.
     """
     begin = self._intervalTree.begin()
     end = self._intervalTree.end()
     conflicts = []
     conflictObjs = []
-    nonConflictObjs = []
+    nonConflictsObjs = []
     intervals = sorted(self._intervalTree[begin:end])
     for interval in intervals:
-      _intervals = self._intervalTree[interval.begin:interval.end]
-      if len(_intervals) > 1: # theres a conflict
-        if _intervals not in conflicts:
-          conflicts.append(_intervals)
-          conflictObjs.append(Conflict(_intervals))
+      # check if this interval was already detected to conflict
+      if self._intervalConflictAlreadyDetected(interval, conflicts):
+        continue
+      conflictIntervals = self._conflictPath(interval, self._intervalTree)
+      if len(conflictIntervals) > 0: # there was a  conflict
+        conflicts.append(conflictIntervals)
+        conflictObjs.append(Conflict(conflictIntervals))
       else:
-        nonConflictObjs.append(Conflict(_intervals))
-    return ConflictSet(conflictObjs), ConflictSet(nonConflictObjs)
+        nonConflictsObjs.append(Conflict(interval))
+    return ConflictSet(conflictObjs), ConflictSet(nonConflictsObjs)
 
 
   def __iter__(self):

@@ -1,3 +1,4 @@
+from intervaltree.interval import Interval
 from .period import Period
 
 class Conflict(object):
@@ -5,7 +6,11 @@ class Conflict(object):
     A data structure that holds all tasks that conflict at a given time.
   """
   def __init__(self, intervals):
-    self._intervals = list(intervals)
+    if isinstance(intervals, Interval):
+      self._intervals = []
+      self._intervals.append(intervals)
+    else:
+      self._intervals = list(intervals)
     self._status = None
     self._availableWorkers = None
     self._workersNeeded = None
@@ -92,7 +97,7 @@ class Conflict(object):
   def __str__(self):
     string = "Conflicts: <"
     for interval in self._intervals:
-      string += str(interval)
+      string += str(interval) + ', '
     string += ">"
     return string
 
