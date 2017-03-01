@@ -13,11 +13,12 @@ from .taskset import TaskSet
 
 
 class TaskManager(object):
-  def __init__(self, period):
+  def __init__(self, period, multitask):
     self._taskSet = TaskSet()
     self._workersQ = WorkerQueue()
     self._workers = []
     self._assignedTasks = []
+    self._multitask = multitask
     self._unassignedTasks = []
     if isinstance(period[0], datetime) and isinstance(period[1], datetime):
       self._start = period[0]
@@ -115,7 +116,7 @@ class TaskManager(object):
     return availableWorkers
 
 
-  def analyseWorkersForNeededTaskSet(self, multitask=2):
+  def analyseWorkersForNeededTaskSet(self):
     """
       Analyses all the conflicts and non conflicts within the task set.
       Set the appropriate properties for each conflict.
@@ -126,7 +127,7 @@ class TaskManager(object):
     for conflict in conflicts:
       begin = conflict.period.begin
       end = conflict.period.end
-      workersNeeded = self.workersNeeded(len(conflict), multitask)
+      workersNeeded = self.workersNeeded(len(conflict), self._multitask)
       workersAvailable = len(self._workersQ.availableWorkersDuringPeriod(begin, end))
       conflict.workersNeeded = int(workersNeeded)
       conflict.availableWorkers = workersAvailable

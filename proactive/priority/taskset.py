@@ -3,7 +3,7 @@ from .taskunit import TaskUnit
 from .taskunitpriorityqueue import TaskUnitPriorityQueue
 from .exceptions import DuplicateTaskException
 from .conflict import Conflict, ConflictSet
-
+from datetime import datetime
 
 class TaskSet(object):
   """
@@ -43,7 +43,7 @@ class TaskSet(object):
     self._tasksQueue.remove(task.taskID)
 
 
-  def _latestInterval(self, intervals):
+  def _findLatestInterval(self, intervals):
     """
       Find the latest interval.
     """
@@ -53,12 +53,14 @@ class TaskSet(object):
         latest = interval
     return latest
 
+  def _orIntervals(self, intervalListA, intervalListB):
+    return list(set(intervalListA) | set(intervalListB))
 
-  def _conflictPath(self, interval, intervalTree, exclude=None):
+  def _conflictPath(self, interval, intervalTree):
     """
       @param interval The interval to find conflicts with.
       @param intervalTree The intervalTree that contains all intervals
-      @param exclude Any intervals to exclude from conflict detection.
+    @param exclude Any intervals to exclude from conflict detection.
       Finds the longest number of intervals that are all overlapping (conflicting).
         For example:
           if A and B conflict and B and C conflict and A is the
@@ -69,20 +71,20 @@ class TaskSet(object):
           for all conflicts with D, only D and E will be returned as
           F and G are not overlapping with either D and E.
     """
-    if not exclude:
-      exclude = set()
-    intervals = intervalTree.search(interval) - exclude
-    intervalsList = list(intervals)
+    intervals = list(intervalTree.search(interval))
     # if only one interval, check if its the one we're
     # trying to find conflicts with.
-    if len(intervalsList) == 1 and intervalsList[0] == interval:
+    if len(intervals) == 1 and intervals[0] == interval:
       return []
     # now find the latest of all the intervals and get all conflicts
     # with and keep going until there are no more conflicts.
-    latest = self._latestInterval(list(intervals))
-    excludedIntervals = intervals - set([latest])
-    intervalsList.extend(self._conflictPath(latest, intervalTree, exclude=excludedIntervals))
-    return intervalsList
+    latestInterval = self._findLatestInterval(intervals)
+    # remove all the conflicts, we dont need to check them again.
+    intervalTree.remove_overlap(interval)
+    # put the latest conflict back into the tree and find its conflicts
+    intervalTree.add(latestInterval)
+    # now go find all conflicts with the latest interval until there are none.
+    return self._orIntervals(intervals, self._conflictPath(latestInterval, intervalTree))
 
 
   def _intervalConflictAlreadyDetected(self, interval, conflicts):
@@ -110,7 +112,7 @@ class TaskSet(object):
       # check if this interval was already detected to conflict
       if self._intervalConflictAlreadyDetected(interval, conflicts):
         continue
-      conflictIntervals = self._conflictPath(interval, self._intervalTree)
+      conflictIntervals = self._conflictPath(interval, self._intervalTree.copy())
       if len(conflictIntervals) > 0: # there was a  conflict
         conflicts.append(conflictIntervals)
         conflictObjs.append(Conflict(conflictIntervals))

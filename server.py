@@ -56,6 +56,7 @@ def begin():
   if _json:
     business = _json.get("business")
     businessID = business["id"]
+    multitask = business["multitask"]
     refresh = _json["refresh"]
     businessDBConn = BusinessDB(
       mongo["uri"],
@@ -71,6 +72,7 @@ def begin():
       priorityService.newProcess(
         business=business,
         processID=businessID,
+        multitask=multitask,
         refresh=refresh
       )
       return jsonify({

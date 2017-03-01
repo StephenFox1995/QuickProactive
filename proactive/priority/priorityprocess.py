@@ -8,9 +8,9 @@ from .taskunit import TaskUnit
 
 
 class PriorityProcess(object):
-  def __init__(self, business, ordersDBConn, refresh=5000):
+  def __init__(self, business, ordersDBConn, multitask, refresh=5000):
     """
-      @param businessID:(str) Object will all business info.
+      @param business: Object will all business info.
       @param ordersDBConn:(db.prioritydb.PriorityDB) Database connection to read orders from.
       @param refresh:(int) - milliseconds: How often the database should be read to when checking
         for new orders. How often the database should be written to with the current state of the
@@ -18,7 +18,7 @@ class PriorityProcess(object):
     """
     self._business = business
     self._businessCoordinates = business.coordinates
-    self._taskManager = TaskManager((business.period.begin, business.period.end))
+    self._taskManager = TaskManager((business.period.begin, business.period.end), multitask)
     self._ordersDBConn = ordersDBConn
     self._refresh = refresh
     self._config = Configuration()
@@ -104,11 +104,10 @@ class PriorityProcess(object):
         "utilization": []
       },
     }
-    conflicts = self._taskManager.taskSet.findConflicts()[0]
+    conflicts, nonConflicts = self._taskManager.taskSet.findConflicts()
     state["conflicts"]["sets"] = conflicts.asDict()
     state["conflicts"]["utilization"] = []
-    conflictAnalysis = self._taskManager.analyseWorkersForNeededTaskSet(multitask=2)[0]
-    nonConflictAnalysis = self._taskManager.analyseWorkersForNeededTaskSet(multitask=2)[1]
+    conflictAnalysis, nonConflictAnalysis = self._taskManager.analyseWorkersForNeededTaskSet()
     for conflict in conflictAnalysis:
       state["conflicts"]["utilization"].append(conflict.asDict())
     for nonConflict in nonConflictAnalysis:

@@ -8,7 +8,7 @@ class PriorityService(object):
     self._orderDBConn = orderDBConn
     self.__processes = {}
 
-  def newProcess(self, business, processID, refresh=5000):
+  def newProcess(self, business, processID, multitask, refresh=5000):
     """
       Creates a new priorityprocess.PriorityProcess to periodically
       calculate the priority of new orders.
@@ -21,6 +21,7 @@ class PriorityService(object):
     process = PriorityProcess(
       business=business,
       ordersDBConn=self._orderDBConn,
+      multitask=multitask,
       refresh=refresh
     )
     self.__processes[processID] = process
