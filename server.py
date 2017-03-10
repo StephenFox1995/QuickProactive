@@ -117,7 +117,7 @@ def stopWorker():
 
 @app.route("/tasks", methods=["GET"])
 @cross_origin()
-def priority():
+def tasks():
   processID = request.args["id"]
   try:
     process = priorityService.process(processID=processID)
@@ -127,6 +127,33 @@ def priority():
     return jsonify({
       "status": "failed",
       "reason": "No process exist for id %s" % processID
+    }), 500
+
+
+@app.route("/tasks/deadline", methods=["GET"])
+@cross_origin()
+def taskDeadline():
+  print("yuppa")
+  businessID = request.args["businessid"]
+  taskID = request.args["id"]
+  try:
+    process = priorityService.process(processID=businessID)
+    state = process.taskSetState()
+    unassignedTasks = state["unassignedTasks"]
+    assignedTasks = state["assignedTasks"]
+    allTasks = unassignedTasks + assignedTasks
+    for task in allTasks:
+      if task["id"] == taskID:
+        return jsonify({"task": task})
+    return jsonify({
+      "status": "failed",
+      "reason": "No task exist for id %s" % taskID
+    }), 404
+  except KeyError as e:
+    return jsonify({
+      "status": "failed",
+      "reason": "No process exist for id %s" % businessID,
+      "exception": e.message
     }), 500
 
 

@@ -164,7 +164,6 @@ class ConflictSet(object):
         end = interval.end.isoformat()
         _interval["begin"] = begin
         _interval["end"] = end
-        print("begin:%s,end%s" % (begin, end))
         intervals.append(_interval)
       conflicts.append(intervals)
     return conflicts
