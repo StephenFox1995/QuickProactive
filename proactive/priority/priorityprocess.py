@@ -52,8 +52,8 @@ class PriorityProcess(object):
 
   def __monitor(self):
     """
-      Monitors the unprocessed orders and keeps the queue attribute
-      in order according to how the orders should be released.
+      Monitors the unprocessed orders, calcualates customer arrival time
+      and messages TaskManager instance to assign workers to the tasks.
     """
     orders = self.__readUnprocessedOrders(self.__orderStore)
     for order in orders:
