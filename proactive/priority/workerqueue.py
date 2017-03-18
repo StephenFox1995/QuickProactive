@@ -16,7 +16,7 @@ class WorkerQueue(object):
       self._workers.append(worker)
 
   def nextWorker(self):
-    worker = self._queue.get() # take woker from the queue.
+    worker = self._queue.get() # take worker from the queue.
     if worker in self._workersToRemove:
       self._workersToRemove.remove(worker)
       return self.nextWorker()
