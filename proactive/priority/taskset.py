@@ -60,7 +60,6 @@ class TaskSet(object):
     """
       @param interval The interval to find conflicts with.
       @param intervalTree The intervalTree that contains all intervals
-    @param exclude Any intervals to exclude from conflict detection.
       Finds the longest number of intervals that are all overlapping (conflicting).
         For example:
           if A and B conflict and B and C conflict and A is the
