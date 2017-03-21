@@ -73,11 +73,11 @@ class Conflict(object):
   def _setStatus(self):
     if self._workersNeeded and self._availableWorkers:
       if self._workersNeeded > self._availableWorkers:
-        self._status = "warning"
+        self._status = "very busy" # W > w
       elif self._workersNeeded == self._availableWorkers:
-        self._status = "busy"
+        self._status = "busy" W = w
       else:
-        self._status = "ok"
+        self._status = "ok" #W < w
 
 
   def asDict(self):
