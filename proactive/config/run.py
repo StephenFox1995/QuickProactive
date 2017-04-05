@@ -1,5 +1,4 @@
 import argparse
-from .configuration import Configuration
 
 
 def getArgs():
@@ -158,4 +157,8 @@ def handleArgs(parser):
       printArgs(props, args.format)
 
 if __name__ == "__main__":
-  handleArgs(getArgs())
+	from configuration import Configuration
+	handleArgs(getArgs())
+else:
+	from .configuration import Configuration
+

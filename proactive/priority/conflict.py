@@ -75,7 +75,7 @@ class Conflict(object):
       if self._workersNeeded > self._availableWorkers:
         self._status = "very busy" # W > w
       elif self._workersNeeded == self._availableWorkers:
-        self._status = "busy" W = w
+        self._status = "busy" #W = w
       else:
         self._status = "ok" #W < w
 
